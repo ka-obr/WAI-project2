@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="pl" class="no_js">
+<head>
+    <meta charset = "UTF-8">
+    <meta name = "viewport" content = "width=device-width, initial-scale=1.0">
+    <link rel = "stylesheet" href="CSS/style.css">
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <link rel="stylesheet" href="https://code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css">
+    <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.min.js"></script>
+    <title>Gitara siema</title>
+</head>
+<body>
+    <header>
+        <h1>Wszystko o gitarach</h1>
+        <svg width="20" height="20" style="vertical-align: middle; margin-left: 8px;">
+            <rect width="20" height="20" fill="#f0c674" rx="4" />
+        </svg>
+    </header>
+    
+    <nav>
+        <ul>
+            <li><a href = "index.html">Strona Główna</a></li>
+            <li>
+                <a>Gitarzyści i gitary</a>
+                <ul>
+                    <li><a href = "gallery.html">Galeria zdjęć</a></li>
+                    <li><a href = "guitarists.html">Legendarni gitarzyści</a></li>
+                </ul>
+            </li>
+            <li><a href = "contact.html">Opinie</a></li>
+        </ul>
+    </nav>
+
+    <main>
+    <div class="tlo-prostokatne">
+        <div id="wstęp">
+            <p>Witaj na <b>Gitary.pl</b>! Znajdziesz tu informacje o kultowych gitarzystach oraz zdjęcia i multimedia ich znanych na cały świat gitar, które przybliżą Ci świat gitarowych legend.</p>
+        </div>
+        <section id="zdjecia-gitar">
+            <h2>Gitarzyści i gitary</h2>
+            <p>W tej sekcji znajdziemy galerię zdjęć najpopularniejszych modeli gitar, oraz opisy najsłynniejszych gitarzystów, którzy zasłyneli z gry na tym sprzęcie.</p>
+            <ul>
+                <li><b>Galeria zdjęć</b> – zapraszam do galerii zdjęć, gdzie znajdziesz unikalne ujęcia najsłynniejszych modeli gitar, które zrewolucjonizowały świat muzyki.</li>
+                <li><b>Legendarni gitarzyści</b> – zapraszam do poznania biografii legendarnych gitarzystów, którzy na zawsze zapisali się w historii muzyki swoim niepowtarzalnym brzmieniem i mistrzowską grą. Znajdziesz tam również porównanie ich stylu gry, gitar oraz znanych piosenek.</li>
+            </ul>
+        </section>
+        <section id="contact">
+            <h2>Opinie</h2>
+            <p>Podziel się z nami swoją opinią! Twoje zdanie jest dla nas ważne i pomaga nam tworzyć lepszą stronę o gitarach.</p>
+        </section>
+        <div class="requires_js">
+            <button type="button" onclick="showNearestConcert()">Znajdź najbliższy koncert gitarowy</button>
+            <p id="concertLocation"></p>
+        </div>
+    </div>
+    </main>
+
+    <footer>
+        <a>Copyright © 2024 Karol Obrycki</a>
+    </footer>
+
+    <script src="js/concertLocation.js"></script>
+    <script src="js/dialog.js"></script>
+    <div id="cookieDialog" class="requires_js" title="Informacja o ciasteczkach" style="display:none;">
+        <p>Nasza strona używa ciasteczek, aby zapewnić lepszą jakość usług. Klikając "Akceptuję", wyrażasz zgodę na ich użycie.</p>
+    </div>
+    <script>
+        document.documentElement.classList.remove("no_js");
+    </script>
+</body>
+</html>

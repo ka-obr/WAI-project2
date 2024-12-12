@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="pl" class="no_js">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="CSS/style.css">
+    <link rel="stylesheet" href="CSS/contact.css">
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <link rel="stylesheet" href="https://code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css">
+    <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.min.js"></script>
+   
+    <title>Opinie</title>
+</head>
+<body>
+    <header>
+        <h1>Wszystko o gitarach</h1>
+        <svg width="20" height="20" style="vertical-align: middle; margin-left: 8px;">
+            <rect width="20" height="20" fill="#f0c674" rx="4" />
+        </svg>
+    </header>
+    
+    <nav>
+        <ul>
+            <li><a href = "index.html">Strona Główna</a></li>
+            <li>
+                <a>Gitarzyści i gitary</a>
+                <ul>
+                    <li><a href = "gallery.html">Galeria zdjęć</a></li>
+                    <li><a href = "guitarists.html">Legendarni gitarzyści</a></li>
+                </ul>
+            </li>
+            <li><a href = "contact.html">Opinie</a></li>
+        </ul>
+    </nav>
+
+    <main>
+        <div class="tlo-prostokatne">
+            <h2>Wyraź swoją opinię o naszej stronie</h2>
+            <form action="odbierz.php" method="post">
+                <label for="name">Imię:</label>
+                <input type="text" id="name" name="name" autocomplete="name" required><br><br>
+
+                <label for="email">Adres email:</label>
+                <input type="email" id="email" name="email" autocomplete="email" required><br><br>
+
+                <label for="phone">Telefon:</label>
+                <input type="tel" id="phone" name="phone" pattern="[0-9]{9}" placeholder="np. 123456789" autocomplete="tel"><br><br>
+
+                <div class="opinia-container">
+                <label for="opinion">Twoja opinia:</label>
+                <textarea id="opinion" name="opinion" rows="4" cols="50" placeholder="Wpisz swoją opinię" required></textarea><br><br>
+                </div>
+                
+                <label for="rating1">Jak oceniasz naszą stronę?</label><br>
+                <input type="radio" id="rating1" name="rating" value="1" required>
+                <label for="rating1">1</label><br>
+                <input type="radio" id="rating2" name="rating" value="2">
+                <label for="rating2">2</label><br>
+                <input type="radio" id="rating3" name="rating" value="3">
+                <label for="rating3">3</label><br>
+                <input type="radio" id="rating4" name="rating" value="4">
+                <label for="rating4">4</label><br>
+                <input type="radio" id="rating5" name="rating" value="5">
+                <label for="rating5">5</label><br><br>
+
+                <label for="favourite">Co najbardziej Ci się podoba na naszej stronie?</label>
+                <select id="favourite" name="favorite">
+                    <option value="design">Wygląd</option>
+                    <option value="content">Treść</option>
+                    <option value="usability">Łatwość użycia</option>
+                </select><br><br>
+
+                <div class="requires_js">
+                    <label>Jak oceniasz naszą stronę? Przesuń, aby wybrać:</label>
+                    <div id="slider" style="margin: 20px 0;"></div>
+                    <p>Wybrana wartość: <span id="slider-value">50</span></p>
+                </div>               
+
+                <label for="visit">Kiedy ostatnio odwiedziłeś naszą stronę?</label>
+                <input type="date" id="visit" name="visit"><br><br>
+
+                <input type="submit" value="Wyślij" id="submitBtn">
+                <input type="reset" value="Wyczyść formularz">
+            </form>
+
+            <div class="requires_js">
+                <h2 id="confirmationMessage">Wyraź swoją opinię o naszej stronie</h2>
+                <input type="text" id="userReview" placeholder="Wpisz swoją opinię tutaj" />
+                <button onclick="addReview()">Dodaj opinię</button>
+
+                <table id="reviewsTable">
+                    <thead>
+                        <tr>
+                            <th>Opinia</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </main>
+
+    <footer>
+        <p>Copyright © 2024 Karol Obrycki</p>
+    </footer>
+
+    <script src="js/reviews.js"></script>
+    <script src="js/slider.js"></script>
+    <script>
+        document.documentElement.classList.remove("no_js");
+    </script>
+</body>
+</html>

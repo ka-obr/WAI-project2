@@ -1,0 +1,30 @@
+@media (max-width: 600px) {
+    .opinia-container {
+        width: 100%;
+        max-width: 100%;
+        margin: 20px 0;
+      }
+}
+
+#reviewsTable {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 15px;
+  background-color: #5a3e2b;
+}
+
+#reviewsTable th {
+  background-color: #8b5e3c;
+  color: #f0f0f0;
+  padding: 12px;
+  font-weight: bold;
+  text-align: left;
+  border-bottom: 2px solid #6e4a2d; 
+}
+
+#reviewsTable td {
+  padding: 10px;
+  border-bottom: 1px solid #8b5e3c; 
+  color: #ffffff; 
+  font-family: Arial, sans-serif;
+}

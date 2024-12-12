@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="pl" class="no_js">
+<head>
+    <meta charset = "UTF-8">
+    <meta name = "viewport" content = "width=device-width, initial-scale=1.0">
+    <link rel = "stylesheet" href="CSS/zoomer.css">
+    <link rel = "stylesheet" href="CSS/style.css">
+    <link rel = "stylesheet" href="CSS/gallery.css">
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="js/zoomer.js"></script>
+    <title>Galeria zdjęć</title>
+</head>
+<body>
+    <header>
+        <h1>Wszystko o gitarach</h1>
+        <svg width="20" height="20" style="vertical-align: middle; margin-left: 8px;">
+            <rect width="20" height="20" fill="#f0c674" rx="4" />
+        </svg>
+    </header>
+
+    <nav>
+        <ul>
+            <li><a href = "index.html">Strona Główna</a></li>
+            <li>
+                <a>Gitarzyści i gitary</a>
+                <ul>
+                    <li><a href = "gallery.html">Galeria zdjęć</a></li>
+                    <li><a href = "guitarists.html">Legendarni gitarzyści</a></li>
+                </ul>
+            </li>
+            <li><a href = "contact.html">Opinie</a></li>
+        </ul>
+    </nav>
+
+    <main>
+        <div class="tlo-prostokatne">
+            <h2>Galeria zdjęć</h2>
+
+            <div class="gallery">
+                <figure id="eric-clapton" class="draggable">
+                    <a>
+                       <div class="zoomer-container">
+                        <img src="gallery/stratocaster1.webp" alt="Eric Clapton i Strat" class="thumbnail">
+                       </div>
+                    </a>
+                    <figcaption>Stratocaster Erica Claptona</figcaption>
+                </figure>
+                <figure id="jimi-hendrix" class="draggable">
+                    <a>
+                        <div class="zoomer-container">
+                            <img src="gallery/stratocaster2.jpg" alt="Hendrix i Strat" class="thumbnail">
+                        </div>
+                    </a>
+                    <figcaption>Stratocaster Jimiego Hendrixa</figcaption>
+                </figure>
+                <figure id="mark-knopfler" class="draggable">
+                    <a>
+                        <div class="zoomer-container">
+                            <img src="gallery/stratocaster3.jpg" alt="Knopfler i Strat" class="thumbnail">
+                        </div>
+                    </a>
+                    <figcaption>Stratocaster Marka Knopflera</figcaption>
+                </figure>
+                <figure id="david-gilmour" class="draggable">
+                    <a>
+                        <div class="zoomer-container">
+                            <img src="gallery/stratocaster4.jpg" alt="David Gilmour i Strat" class="thumbnail">
+                        </div>   
+                    </a>
+                    <figcaption>Telecaster Davida Gilmoura</figcaption>
+                </figure>
+                <figure id="jeff-beck" class="draggable">
+                    <a>
+                        <div class="zoomer-container">
+                            <img src="gallery/stratocaster5.jpg" alt="Jeff Beck i Strat" class="thumbnail">
+                        </div>                       
+                    </a>
+                    <figcaption>Les Paul Jeffa Becka</figcaption>
+                </figure>
+                <a href ="gallery.html">Wróć na górę strony</a>
+            </div>
+
+        </div>
+    </main>
+
+    <footer>
+        <a>Copyright © 2024 Karol Obrycki</a>
+    </footer>
+
+    <script>
+        document.documentElement.classList.remove("no_js");
+    </script>
+</body>
+</html>
