@@ -24,6 +24,12 @@ body {
     flex: 1;
 }
 
+.center-text {
+    display: block;
+    text-align: center;
+    margin: 20px 0;
+}
+
 header {
     text-align: center;
     background-color: #5a3e2b;
