@@ -19,7 +19,7 @@
                 <p style="color: red;"><?= htmlspecialchars($error) ?></p>
             <?php endif; ?>
 
-            <form action="/upload" method="post" enctype="multipart/form-data">
+            <form action="/MojaStrona/upload" method="post" enctype="multipart/form-data">
                 <label for="image">Wybierz plik do przesłania (PNG/JPG, max 1 MB):</label>
                 <input type="file" name="image" id="image" required>
                 <button type="submit">Wyślij</button>

@@ -41,7 +41,7 @@
             <div class="gallery">
                 <?php foreach ($images as $image): ?>
                     <?php
-                    $target = 'uploads/' . basename($image);
+                    $target = 'images/' . basename($image);
                     ?>
                     <figure>
                         <img src = "<?= htmlspecialchars($target) ?>" alt = "Zdjęcie" class = "thumbnail">

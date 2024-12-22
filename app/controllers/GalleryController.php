@@ -11,32 +11,23 @@ class GalleryController {
     }
 
     public function upload() {
-        if($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_FILES['file'])) {
-            $result = Image::upload($_FILES['file']);
+        require_once __DIR__ . '/../../views/UploadForm.php';
+    }
 
-            if($result['success']) {
-                header('Location: /gallery');
+    public function save() {
+        if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_FILES['image'])) {
+            $result = Image::save($_FILES['image']);
+
+            if ($result['success']) {
+                header('Location: /MojaStrona/gallery');
                 exit();
-            } 
-            else {
+            } else {
                 $error = $result['error'];
                 require_once __DIR__ . '/../../views/UploadForm.php';
             }
-        }
+        } 
         else {
             require_once __DIR__ . '/../../views/UploadForm.php';
         }
-    }
-
-    public function save()
-    {
-        // if($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['id'])) {
-        //     $image = Image::getById($_POST['id']);
-        //     $image->title = $_POST['title'];
-        //     $image->description = $_POST['description'];
-        //     $image->save();
-        //     header('Location: /gallery');
-        //     exit();
-        // }
     }
 }
