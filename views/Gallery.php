@@ -17,21 +17,7 @@
             <rect width="20" height="20" fill="#f0c674" rx="4" />
         </svg>
     </header>
-
-    <nav>
-        <ul>
-            <li><a href = "index.html">Strona Główna</a></li>
-            <li>
-                <a>Gitarzyści i gitary</a>
-                <ul>
-                    <li><a href = "gallery.html">Galeria zdjęć</a></li>
-                    <li><a href = "guitarists.html">Legendarni gitarzyści</a></li>
-                </ul>
-            </li>
-            <li><a href = "contact.html">Opinie</a></li>
-        </ul>
-    </nav>
-
+    
     <main>
         <div class="tlo-prostokatne">
             <h2>Galeria zdjęć</h2>
