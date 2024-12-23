@@ -22,6 +22,11 @@
             <form action="/MojaStrona/upload" method="post" enctype="multipart/form-data">
                 <label for="image">Wybierz plik do przesłania (PNG/JPG, max 1 MB):</label>
                 <input type="file" name="image" id="image" required>
+
+                <label for="watermark">Znak wodny:</label>
+                <input type="text" name="watermark" id="watermark" required>
+
+                <br>
                 <button type="submit">Wyślij</button>
             </form>
 

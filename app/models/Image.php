@@ -2,6 +2,8 @@
 
 namespace App\Models;
 
+use App\Services\ImageService;
+
 class Image {
     private static $uploadDir = __DIR__ . '/../../images/';
 
@@ -9,7 +11,7 @@ class Image {
         return glob(self::$uploadDir . '*.{jpg,jpeg,png}', GLOB_BRACE);
     }
 
-    public static function save($file) {
+    public static function save($file, $watermark) {
         $allowedTypes = ['image/png', 'image/jpeg'];
         $maxSize = 1 * 1024 * 1024;
 
@@ -33,11 +35,18 @@ class Image {
         }
 
         if (move_uploaded_file($file['tmp_name'], $target)) {
+            $extension = pathinfo($fileName, PATHINFO_EXTENSION);
+            $extension = strtolower($extension);
+
+            $watermarkedFilePath = self::$uploadDir . 'watermarked_' . $fileName;
+            $thumbnailFilePath = self::$uploadDir . 'thumbnail_' . $fileName;
+
+            ImageService::createWatermark($target, $watermarkedFilePath, $extension, $watermark);
+            ImageService::createThumbnail($target, $thumbnailFilePath, $extension);
+
             return ['success' => true];
-        } 
-        else {
+        } else {
             return ['success' => false, 'error' => 'Błąd podczas zapisu pliku'];
         }
     }
 }
-?>

@@ -15,8 +15,8 @@ class GalleryController {
     }
 
     public function save() {
-        if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_FILES['image'])) {
-            $result = Image::save($_FILES['image']);
+        if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_FILES['image']) && isset($_POST['watermark'])) {
+            $result = Image::save($_FILES['image'], $_POST['watermark']);
 
             if ($result['success']) {
                 header('Location: /MojaStrona/gallery');
