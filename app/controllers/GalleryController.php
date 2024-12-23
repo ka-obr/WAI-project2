@@ -21,7 +21,8 @@ class GalleryController {
             if ($result['success']) {
                 header('Location: /MojaStrona/gallery');
                 exit();
-            } else {
+            } 
+            else {
                 $error = $result['error'];
                 require_once __DIR__ . '/../../views/UploadForm.php';
             }
