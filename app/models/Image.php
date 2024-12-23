@@ -45,7 +45,8 @@ class Image {
             ImageService::createThumbnail($target, $thumbnailFilePath, $extension);
 
             return ['success' => true];
-        } else {
+        } 
+        else {
             return ['success' => false, 'error' => 'Błąd podczas zapisu pliku'];
         }
     }
