@@ -27,13 +27,23 @@
             <div class="gallery">
                 <?php foreach ($images as $image): ?>
                     <?php
-                    $target = 'images/' . basename($image);
+                    $thumbnail = 'images/thumbnail_' . basename($image);
+                    $watermarked = 'images/watermarked_' . basename($image);
                     ?>
                     <figure>
-                        <img src = "<?= htmlspecialchars($target) ?>" alt = "Zdjęcie" class = "thumbnail">
+                        <a href="<?= htmlspecialchars($watermarked) ?>">
+                            <img src="<?= htmlspecialchars($thumbnail) ?>" alt="Zdjęcie" class="thumbnail">
+                        </a>
                         <figcaption><?= htmlspecialchars(basename($image)) ?></figcaption>
                     </figure>
                 <?php endforeach; ?>
+            </div>
+
+            <br>
+            <div class="pagination">
+                <?php for ($i = 1; $i <= $totalPages; $i++): ?>
+                    <a href="?page=<?= $i ?>" class="<?= ($i === $page) ? 'active' : '' ?>"><?= $i ?></a>
+                <?php endfor; ?>
             </div>
         </div>
     </main>

@@ -4,14 +4,21 @@ namespace App\Controllers;
 
 use App\Models\Image;
 
-class GalleryController {
+class GalleryController {    
     public function index() {
-        $images = Image::getAll();
+        $page = isset($_GET['page']) ? (int)$_GET['page'] : 1;
+        $limit = 2;
+        $offset = ($page - 1) * $limit;
+
+        $images = Image::getAll($limit, $offset);
+        $totalImages = Image::countAll();
+        $totalPages = ceil($totalImages / $limit);
+
         require_once __DIR__ . '/../../views/Gallery.php';
     }
 
     public function upload() {
-        require_once __DIR__ . '/../../views/UploadForm.php';
+        include __DIR__ . '/../../views/UploadForm.php';
     }
 
     public function save() {
@@ -24,11 +31,11 @@ class GalleryController {
             } 
             else {
                 $error = $result['error'];
-                require_once __DIR__ . '/../../views/UploadForm.php';
+                include __DIR__ . '/../../views/UploadForm.php';
             }
         } 
         else {
-            require_once __DIR__ . '/../../views/UploadForm.php';
+            include __DIR__ . '/../../views/UploadForm.php';
         }
     }
 }
