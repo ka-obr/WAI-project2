@@ -5,35 +5,25 @@ namespace App\Models;
 use App\Services\ImageService;
 use App\Services\FileValidator;
 use App\Services\ImageProcessor;
-use App\Core\MongoDatabase;
+use App\Repositories\ImageRepository;
 
 class Image {
     private static $uploadDir = __DIR__ . '/../../images/';
+    private $repository;
 
-    public static function getAll($limit = 2, $offset = 0) {
-        $db = MongoDatabase::getInstance();
-        $manager = $db->getManager();
-        $database = $db->getDatabase();
-
-        $query = new \MongoDB\Driver\Query([], [
-            'limit' => $limit,
-            'skip' => $offset,
-        ]);
-        $cursor = $manager->executeQuery("$database.images", $query);
-        return $cursor->toArray();
+    public function __construct() {
+        $this->repository = new ImageRepository();
     }
 
-    public static function countAll() {
-        $db = MongoDatabase::getInstance();
-        $manager = $db->getManager();
-        $database = $db->getDatabase();
-
-        $command = new \MongoDB\Driver\Command(['count' => 'images']);
-        $result = $manager->executeCommand($database, $command);
-        return $result->toArray()[0]->n;
+    public function getAll($limit = 2, $offset = 0) {
+        return $this->repository->getAll($limit, $offset);
     }
 
-    public static function save($file, $title, $author, $watermark) {
+    public function countAll() {
+        return $this->repository->countAll();
+    }
+
+    public function save($file, $title, $author, $watermark) {
         $fileName = basename($file['name']);
         $fileType = mime_content_type($file['tmp_name']);
         $fileSize = $file['size'];
@@ -47,32 +37,22 @@ class Image {
         if (move_uploaded_file($file['tmp_name'], $target)) {
             ImageProcessor::process($target, $fileName, $watermark);
 
-            $db = MongoDatabase::getInstance();
-            $manager = $db->getManager();
-            $database = $db->getDatabase();
-
-            $bulk = new \MongoDB\Driver\BulkWrite;
-            $bulk->insert([
+            $data = [
                 'fileName' => $fileName,
                 'title' => $title,
                 'author' => $author,
                 'watermark' => $watermark,
                 'created_at' => new \MongoDB\BSON\UTCDateTime(),
-            ]);
-            $manager->executeBulkWrite("$database.images", $bulk);
+            ];
+            $this->repository->save($data);
 
             return ['success' => true];
-        } 
-        else {
+        } else {
             return ['success' => false, 'error' => 'Nie udało się przesłać pliku.'];
         }
     }
 
-    public static function delete($fileName) {
-        $db = MongoDatabase::getInstance();
-        $manager = $db->getManager();
-        $database = $db->getDatabase();
-
+    public function delete($fileName) {
         $thumbnailPath = self::$uploadDir . 'thumbnail_' . $fileName;
         $watermarkedPath = self::$uploadDir . 'watermarked_' . $fileName;
         $originalPath = self::$uploadDir . $fileName;
@@ -87,8 +67,6 @@ class Image {
             unlink($originalPath);
         }
 
-        $bulk = new \MongoDB\Driver\BulkWrite;
-        $bulk->delete(['fileName' => $fileName]);
-        $manager->executeBulkWrite("$database.images", $bulk);
+        $this->repository->delete($fileName);
     }
 }

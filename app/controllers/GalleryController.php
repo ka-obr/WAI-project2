@@ -10,8 +10,9 @@ class GalleryController {
         $limit = 2;
         $offset = ($page - 1) * $limit;
 
-        $images = Image::getAll($limit, $offset);
-        $totalImages = Image::countAll();
+        $imageModel = new Image();
+        $images = $imageModel->getAll($limit, $offset);
+        $totalImages = $imageModel->countAll();
         $totalPages = ceil($totalImages / $limit);
 
         require_once __DIR__ . '/../../views/Gallery.php';
@@ -23,7 +24,8 @@ class GalleryController {
 
     public function save() {
         if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_FILES['image']) && isset($_POST['title']) && isset($_POST['author']) && isset($_POST['watermark'])) {
-            $result = Image::save($_FILES['image'], $_POST['title'], $_POST['author'], $_POST['watermark']);
+            $imageModel = new Image();
+            $result = $imageModel->save($_FILES['image'], $_POST['title'], $_POST['author'], $_POST['watermark']);
 
             if ($result['success']) {
                 header('Location: /MojaStrona/gallery');
@@ -40,7 +42,8 @@ class GalleryController {
 
     public function delete() {
         if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['fileName'])) {
-            Image::delete($_POST['fileName']);
+            $imageModel = new Image();
+            $imageModel->delete($_POST['fileName']);
             header('Location: /MojaStrona/gallery');
             exit();
         }

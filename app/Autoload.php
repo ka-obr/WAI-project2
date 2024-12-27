@@ -7,4 +7,5 @@ require_once __DIR__ . '/core/Router.php';
 require_once __DIR__ . '/services/ImageService.php';
 require_once __DIR__ . '/services/FileValidator.php';
 require_once __DIR__ . '/services/ImageProcessor.php';
+require_once __DIR__ . '/repositories/ImageRepository.php';
 require_once __DIR__ . '/core/DataBase.php';
