@@ -23,6 +23,12 @@
                 <label for="image">Wybierz plik do przesłania (PNG/JPG, max 1 MB):</label>
                 <input type="file" name="image" id="image" required>
 
+                <label for="title">Tytuł:</label>
+                <input type="text" name="title" id="title" required>
+
+                <label for="author">Autor:</label>
+                <input type="text" name="author" id="author" required>
+
                 <label for="watermark">Znak wodny:</label>
                 <input type="text" name="watermark" id="watermark" required>
 

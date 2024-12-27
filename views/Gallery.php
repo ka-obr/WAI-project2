@@ -27,14 +27,21 @@
             <div class="gallery">
                 <?php foreach ($images as $image): ?>
                     <?php
-                    $thumbnail = 'images/thumbnail_' . basename($image);
-                    $watermarked = 'images/watermarked_' . basename($image);
+                    $thumbnail = 'images/thumbnail_' . $image->fileName;
+                    $watermarked = 'images/watermarked_' .$image->fileName;
                     ?>
                     <figure>
                         <a href="<?= htmlspecialchars($watermarked) ?>">
                             <img src="<?= htmlspecialchars($thumbnail) ?>" alt="Zdjęcie" class="thumbnail">
                         </a>
-                        <figcaption><?= htmlspecialchars(basename($image)) ?></figcaption>
+                        <figcaption>
+                            <strong>Tytuł:</strong> <?= htmlspecialchars($image->title) ?><br>
+                            <strong>Autor:</strong> <?= htmlspecialchars($image->author) ?>
+                        </figcaption>
+                        <form action="/MojaStrona/delete" method="post" style="display:inline;">
+                            <input type="hidden" name="fileName" value="<?= htmlspecialchars($image->fileName) ?>">
+                            <button type="submit">Usuń</button>
+                        </form>
                     </figure>
                 <?php endforeach; ?>
             </div>
