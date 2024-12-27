@@ -3,12 +3,12 @@
 namespace App\Models;
 
 use App\Services\ImageService;
+use App\Services\FileValidator;
+use App\Services\ImageProcessor;
 use App\Core\MongoDatabase;
 
 class Image {
     private static $uploadDir = __DIR__ . '/../../images/';
-    private const ALLOWED_TYPES = ['image/png', 'image/jpeg'];
-    private const MAX_SIZE = 1 * 1024 * 1024;
 
     public static function getAll($limit = 2, $offset = 0) {
         $db = MongoDatabase::getInstance();
@@ -39,13 +39,13 @@ class Image {
         $fileSize = $file['size'];
         $target = self::$uploadDir . $fileName;
 
-        $errors = self::validateFile($fileType, $fileSize);
+        $errors = FileValidator::validate($fileType, $fileSize);
         if (!empty($errors)) {
             return ['success' => false, 'error' => implode(' ', $errors)];
         }
 
         if (move_uploaded_file($file['tmp_name'], $target)) {
-            self::processImage($target, $fileName, $watermark);
+            ImageProcessor::process($target, $fileName, $watermark);
 
             $db = MongoDatabase::getInstance();
             $manager = $db->getManager();
@@ -62,7 +62,8 @@ class Image {
             $manager->executeBulkWrite("$database.images", $bulk);
 
             return ['success' => true];
-        } else {
+        } 
+        else {
             return ['success' => false, 'error' => 'Nie udało się przesłać pliku.'];
         }
     }
@@ -89,24 +90,5 @@ class Image {
         $bulk = new \MongoDB\Driver\BulkWrite;
         $bulk->delete(['fileName' => $fileName]);
         $manager->executeBulkWrite("$database.images", $bulk);
-    }
-
-    private static function validateFile($fileType, $fileSize) {
-        $errors = [];
-        if (!in_array($fileType, self::ALLOWED_TYPES)) {
-            $errors[] = 'Niedozwolony format pliku.';
-        }
-        if ($fileSize > self::MAX_SIZE) {
-            $errors[] = 'Plik jest za duży.';
-        }
-        return $errors;
-    }
-
-    private static function processImage($target, $fileName, $watermark) {
-        $thumbnailPath = self::$uploadDir . 'thumbnail_' . $fileName;
-        $watermarkedPath = self::$uploadDir . 'watermarked_' . $fileName;
-
-        ImageService::createThumbnail($target, $thumbnailPath, pathinfo($fileName, PATHINFO_EXTENSION));
-        ImageService::createWatermark($target, $watermarkedPath, pathinfo($fileName, PATHINFO_EXTENSION), $watermark);
     }
 }
