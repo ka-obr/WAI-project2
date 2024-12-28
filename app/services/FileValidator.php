@@ -3,8 +3,8 @@
 namespace App\Services;
 
 class FileValidator {
-    private const ALLOWED_TYPES = ['image/png', 'image/jpeg'];
-    private const MAX_SIZE = 1 * 1024 * 1024;
+    const ALLOWED_TYPES = ['image/png', 'image/jpeg'];
+    const MAX_SIZE = 1 * 1024 * 1024;
 
     public static function validate($fileType, $fileSize) {
         $errors = [];
