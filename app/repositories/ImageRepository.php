@@ -5,39 +5,35 @@ namespace App\Repositories;
 use App\Core\MongoDatabase;
 
 class ImageRepository {
-    private $manager;
     private $database;
 
     public function __construct() {
         $db = MongoDatabase::getInstance();
-        $this->manager = $db->getManager();
         $this->database = $db->getDatabase();
     }
 
     public function getAll($limit, $offset) {
-        $query = new \MongoDB\Driver\Query([], [
+        $collection = $this->database->images;
+        $options = [
             'limit' => $limit,
             'skip' => $offset,
-        ]);
-        $cursor = $this->manager->executeQuery("$this->database.images", $query);
+        ];
+        $cursor = $collection->find([], $options);
         return $cursor->toArray();
     }
 
     public function countAll() {
-        $command = new \MongoDB\Driver\Command(['count' => 'images']);
-        $result = $this->manager->executeCommand($this->database, $command);
-        return $result->toArray()[0]->n;
+        $collection = $this->database->images;
+        return $collection->countDocuments();
     }
 
     public function save($data) {
-        $bulk = new \MongoDB\Driver\BulkWrite;
-        $bulk->insert($data);
-        $this->manager->executeBulkWrite("$this->database.images", $bulk);
+        $collection = $this->database->images;
+        $collection->insertOne($data);
     }
 
     public function delete($fileName) {
-        $bulk = new \MongoDB\Driver\BulkWrite;
-        $bulk->delete(['fileName' => $fileName]);
-        $this->manager->executeBulkWrite("$this->database.images", $bulk);
+        $collection = $this->database->images;
+        $collection->deleteOne(['fileName' => $fileName]);
     }
 }

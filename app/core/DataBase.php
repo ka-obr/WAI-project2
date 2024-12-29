@@ -2,15 +2,17 @@
 
 namespace App\Core;
 
+use MongoDB\Client;
+
 class MongoDatabase {
     private static $instance = null;
-    private $manager;
+    private $client;
     private $database;
 
     private function __construct() {
         $config = require __DIR__ . '/../config/MongoDataBase.php';
-        $this->manager = new \MongoDB\Driver\Manager($config['mongo']['uri']);
-        $this->database = $config['mongo']['database'];
+        $this->client = new Client($config['mongo']['uri']);
+        $this->database = $this->client->selectDatabase($config['mongo']['database']);
     }
 
     public static function getInstance() {
@@ -20,8 +22,8 @@ class MongoDatabase {
         return self::$instance;
     }
 
-    public function getManager() {
-        return $this->manager;
+    public function getClient() {
+        return $this->client;
     }
 
     public function getDatabase() {
