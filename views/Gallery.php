@@ -7,7 +7,7 @@
     <link rel = "stylesheet" href="/MojaStrona/web/css/style.css">
     <link rel = "stylesheet" href="/MojaStrona/web/css/gallery.css">
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-    <script src="/MojaStrona/web/js/zoomer.js"></script>
+    <script src="/MojaStrona/web/js/checkbox.js"></script>
     <title>Galeria zdjęć</title>
 </head>
 <body>
@@ -23,12 +23,11 @@
             <h2>Galeria zdjęć</h2>
             <a href = "/MojaStrona/upload" class="center-text">Dodaj nowe zdjęcie</a>
 
-
             <div class="gallery">
                 <?php foreach ($images as $image): ?>
                     <?php
                     $thumbnail = 'images/thumbnail_' . $image->fileName;
-                    $watermarked = 'images/watermarked_' .$image->fileName;
+                    $watermarked = 'images/watermarked_' . $image->fileName;
                     ?>
                     <figure>
                         <a href="<?= htmlspecialchars($watermarked) ?>">
@@ -38,13 +37,19 @@
                             <strong>Tytuł:</strong> <?= htmlspecialchars($image->title) ?><br>
                             <strong>Autor:</strong> <?= htmlspecialchars($image->author) ?>
                         </figcaption>
+                        <input type="checkbox" name="selected_images[]" value="<?= htmlspecialchars($image->_id) ?>">
                         <form action="/MojaStrona/delete" method="post" style="display:inline;">
                             <input type="hidden" name="fileName" value="<?= htmlspecialchars($image->fileName) ?>">
-                            <button type="submit">Usuń</button>
+                            <button type="submit" class="delete-button" data-id="<?= htmlspecialchars($image->fileName) ?>">Usuń</button>
                         </form>
                     </figure>
                 <?php endforeach; ?>
             </div>
+
+            <br>
+            <form action="/MojaStrona/remembered" method="post">
+                <button type="submit" class="center-button">Zapamiętaj wybrane</button>
+            </form>
 
             <br>
             <div class="pagination">

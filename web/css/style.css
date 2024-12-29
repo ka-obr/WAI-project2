@@ -30,6 +30,12 @@ body {
     margin: 20px 0;
 }
 
+.center-button {
+    text-align: center;
+    display: block;
+    margin: 0 auto;
+}
+
 header {
     text-align: center;
     background-color: #5a3e2b;
