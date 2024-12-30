@@ -1,12 +1,12 @@
 <?php
 /*
- * Copyright 2017-present MongoDB, Inc.
+ * Copyright 2017 MongoDB, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *   https://www.apache.org/licenses/LICENSE-2.0
+ *   http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -20,11 +20,10 @@ namespace MongoDB\Model;
 use Countable;
 use Iterator;
 use IteratorIterator;
-use ReturnTypeWillChange;
 use Traversable;
-
 use function count;
 use function current;
+use function key;
 use function next;
 use function reset;
 
@@ -36,43 +35,42 @@ use function reset;
  * those operations (e.g. MongoDB\Driver\Cursor).
  *
  * @internal
- * @template TKey of array-key
- * @template TValue
- * @template-implements Iterator<TKey, TValue>
  */
 class CachingIterator implements Countable, Iterator
 {
-    private const FIELD_KEY = 0;
-    private const FIELD_VALUE = 1;
+    /** @var array */
+    private $items = [];
 
-    /** @var list<array{0: TKey, 1: TValue}> */
-    private array $items = [];
+    /** @var IteratorIterator */
+    private $iterator;
 
-    /** @var Iterator<TKey, TValue> */
-    private Iterator $iterator;
+    /** @var boolean */
+    private $iteratorAdvanced = false;
 
-    private bool $iteratorAdvanced = false;
-
-    private bool $iteratorExhausted = false;
+    /** @var boolean */
+    private $iteratorExhausted = false;
 
     /**
      * Initialize the iterator and stores the first item in the cache. This
      * effectively rewinds the Traversable and the wrapping IteratorIterator.
-     * Additionally, this mimics behavior of the SPL iterators and allows users
-     * to omit an explicit call to rewind() before using the other methods.
+     *  Additionally, this mimics behavior of the SPL iterators and allows users
+     * to omit an explicit call * to rewind() before using the other methods.
      *
-     * @param Traversable<TKey, TValue> $traversable
+     * @param Traversable $traversable
      */
     public function __construct(Traversable $traversable)
     {
-        $this->iterator = $traversable instanceof Iterator ? $traversable : new IteratorIterator($traversable);
+        $this->iterator = new IteratorIterator($traversable);
 
         $this->iterator->rewind();
         $this->storeCurrentItem();
     }
 
-    /** @see https://php.net/countable.count */
-    public function count(): int
+    /**
+     * @see http://php.net/countable.count
+     * @return integer
+     */
+    public function count()
     {
         $this->exhaustIterator();
 
@@ -80,45 +78,46 @@ class CachingIterator implements Countable, Iterator
     }
 
     /**
-     * @see https://php.net/iterator.current
+     * @see http://php.net/iterator.current
      * @return mixed
      */
-    #[ReturnTypeWillChange]
     public function current()
     {
-        $currentItem = current($this->items);
-
-        return $currentItem !== false ? $currentItem[self::FIELD_VALUE] : null;
+        return current($this->items);
     }
 
     /**
-     * @see https://php.net/iterator.key
+     * @see http://php.net/iterator.key
      * @return mixed
-     * @psalm-return TKey|null
      */
-    #[ReturnTypeWillChange]
     public function key()
     {
-        $currentItem = current($this->items);
-
-        return $currentItem !== false ? $currentItem[self::FIELD_KEY] : null;
+        return key($this->items);
     }
 
-    /** @see https://php.net/iterator.next */
-    public function next(): void
+    /**
+     * @see http://php.net/iterator.next
+     * @return void
+     */
+    public function next()
     {
         if (! $this->iteratorExhausted) {
             $this->iteratorAdvanced = true;
             $this->iterator->next();
 
             $this->storeCurrentItem();
+
+            $this->iteratorExhausted = ! $this->iterator->valid();
         }
 
         next($this->items);
     }
 
-    /** @see https://php.net/iterator.rewind */
-    public function rewind(): void
+    /**
+     * @see http://php.net/iterator.rewind
+     * @return void
+     */
+    public function rewind()
     {
         /* If the iterator has advanced, exhaust it now so that future iteration
          * can rely on the cache.
@@ -130,8 +129,11 @@ class CachingIterator implements Countable, Iterator
         reset($this->items);
     }
 
-    /** @see https://php.net/iterator.valid */
-    public function valid(): bool
+    /**
+     * @see http://php.net/iterator.valid
+     * @return boolean
+     */
+    public function valid()
     {
         return $this->key() !== null;
     }
@@ -139,7 +141,7 @@ class CachingIterator implements Countable, Iterator
     /**
      * Ensures that the inner iterator is fully consumed and cached.
      */
-    private function exhaustIterator(): void
+    private function exhaustIterator()
     {
         while (! $this->iteratorExhausted) {
             $this->next();
@@ -149,18 +151,14 @@ class CachingIterator implements Countable, Iterator
     /**
      * Stores the current item in the cache.
      */
-    private function storeCurrentItem(): void
+    private function storeCurrentItem()
     {
-        if (! $this->iterator->valid()) {
-            $this->iteratorExhausted = true;
+        $key = $this->iterator->key();
 
+        if ($key === null) {
             return;
         }
 
-        // Storing a new item in the internal cache
-        $this->items[] = [
-            self::FIELD_KEY => $this->iterator->key(),
-            self::FIELD_VALUE => $this->iterator->current(),
-        ];
+        $this->items[$key] = $this->iterator->current();
     }
 }

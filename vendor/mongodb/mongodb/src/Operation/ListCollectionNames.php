@@ -6,7 +6,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *   https://www.apache.org/licenses/LICENSE-2.0
+ *   http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -27,26 +27,19 @@ use MongoDB\Model\CallbackIterator;
 /**
  * Operation for the listCollectionNames helper.
  *
+ * @api
  * @see \MongoDB\Database::listCollectionNames()
- * @see https://mongodb.com/docs/manual/reference/command/listCollections/
+ * @see http://docs.mongodb.org/manual/reference/command/listCollections/
  */
 class ListCollectionNames implements Executable
 {
-    private ListCollectionsCommand $listCollections;
+    /** @var ListCollectionsCommand */
+    private $listCollections;
 
     /**
      * Constructs a listCollections command.
      *
      * Supported options:
-     *
-     *  * authorizedCollections (boolean): Determines which collections are
-     *    returned based on the user privileges.
-     *
-     *    For servers < 4.0, this option is ignored.
-     *
-     *  * comment (mixed): BSON value to attach as a comment to this command.
-     *
-     *    This is not supported for servers versions < 4.4.
      *
      *  * filter (document): Query by which to filter collections.
      *
@@ -55,11 +48,13 @@ class ListCollectionNames implements Executable
      *
      *  * session (MongoDB\Driver\Session): Client session.
      *
+     *    Sessions are not supported for server versions < 3.6.
+     *
      * @param string $databaseName Database name
      * @param array  $options      Command options
      * @throws InvalidArgumentException for parameter/option parsing errors
      */
-    public function __construct(string $databaseName, array $options = [])
+    public function __construct($databaseName, array $options = [])
     {
         $this->listCollections = new ListCollectionsCommand($databaseName, ['nameOnly' => true] + $options);
     }
@@ -68,14 +63,17 @@ class ListCollectionNames implements Executable
      * Execute the operation.
      *
      * @see Executable::execute()
+     * @param Server $server
      * @return Iterator
      * @throws DriverRuntimeException for other driver errors (e.g. connection errors)
      */
-    public function execute(Server $server): Iterator
+    public function execute(Server $server) : Iterator
     {
         return new CallbackIterator(
             $this->listCollections->execute($server),
-            fn (array $collectionInfo): string => (string) $collectionInfo['name'],
+            function (array $collectionInfo) {
+                return $collectionInfo['name'];
+            }
         );
     }
 }

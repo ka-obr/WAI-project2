@@ -1,12 +1,12 @@
 <?php
 /*
- * Copyright 2015-present MongoDB, Inc.
+ * Copyright 2015-2017 MongoDB, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *   https://www.apache.org/licenses/LICENSE-2.0
+ *   http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -17,24 +17,25 @@
 
 namespace MongoDB\Operation;
 
-use Iterator;
 use MongoDB\Command\ListDatabases as ListDatabasesCommand;
 use MongoDB\Driver\Exception\RuntimeException as DriverRuntimeException;
 use MongoDB\Driver\Server;
 use MongoDB\Exception\InvalidArgumentException;
 use MongoDB\Exception\UnexpectedValueException;
-use MongoDB\Model\DatabaseInfo;
+use MongoDB\Model\DatabaseInfoIterator;
 use MongoDB\Model\DatabaseInfoLegacyIterator;
 
 /**
  * Operation for the ListDatabases command.
  *
+ * @api
  * @see \MongoDB\Client::listDatabases()
- * @see https://mongodb.com/docs/manual/reference/command/listDatabases/#mongodb-dbcommand-dbcmd.listDatabases`
+ * @see http://docs.mongodb.org/manual/reference/command/ListDatabases/
  */
 class ListDatabases implements Executable
 {
-    private ListDatabasesCommand $listDatabases;
+    /** @var ListDatabasesCommand */
+    private $listDatabases;
 
     /**
      * Constructs a listDatabases command.
@@ -46,16 +47,16 @@ class ListDatabases implements Executable
      *
      *    For servers < 4.0.5, this option is ignored.
      *
-     *  * comment (mixed): BSON value to attach as a comment to this command.
-     *
-     *    This is not supported for servers versions < 4.4.
-     *
      *  * filter (document): Query by which to filter databases.
+     *
+     *    For servers < 3.6, this option is ignored.
      *
      *  * maxTimeMS (integer): The maximum amount of time to allow the query to
      *    run.
      *
      *  * session (MongoDB\Driver\Session): Client session.
+     *
+     *    Sessions are not supported for server versions < 3.6.
      *
      * @param array $options Command options
      * @throws InvalidArgumentException for parameter/option parsing errors
@@ -69,7 +70,8 @@ class ListDatabases implements Executable
      * Execute the operation.
      *
      * @see Executable::execute()
-     * @return Iterator<int, DatabaseInfo>
+     * @param Server $server
+     * @return DatabaseInfoIterator
      * @throws UnexpectedValueException if the command response was malformed
      * @throws DriverRuntimeException for other driver errors (e.g. connection errors)
      */
