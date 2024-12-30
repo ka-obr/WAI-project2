@@ -19,6 +19,7 @@
         <ul>
             <li><a href = "/MojaStrona/remembered">Zapamiętane zdjęcia</a></li>
             <li><a href = "/MojaStrona/upload">Prześlij zdjęcie</a></li>
+            <li><a href = "/MojaStrona/resetSession">Restart sesji</a></li>
         </ul>
     </nav>
     

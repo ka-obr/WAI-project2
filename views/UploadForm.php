@@ -10,12 +10,16 @@
 <body>
     <header>
         <h1>Przesyłanie zdjęcia</h1>
+        <svg width="20" height="20" style="vertical-align: middle; margin-left: 8px;">
+            <rect width="20" height="20" fill="#f0c674" rx="4" />
+        </svg>
     </header>
 
     <nav>
         <ul>
             <li><a href = "/MojaStrona/gallery">Galeria</a></li>
             <li><a href = "/MojaStrona/remembered">Zapamiętane zdjęcia</a></li>
+            <li><a href = "/MojaStrona/resetSession">Restart sesji</a></li>
         </ul>
     </nav>
 

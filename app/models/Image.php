@@ -7,6 +7,8 @@ use App\Services\FileValidator;
 use App\Services\ImageProcessor;
 use App\Repositories\ImageRepository;
 
+require_once __DIR__ . '/../config/GalleryLimit.php';
+
 class Image {
     private static $uploadDir = __DIR__ . '/../../images/';
     private $repository;
@@ -15,7 +17,7 @@ class Image {
         $this->repository = new ImageRepository();
     }
 
-    public function getAll($limit = 2, $offset = 0) {
+    public function getAll($limit = GALLERY_LIMIT, $offset = 0) {
         return $this->repository->getAll($limit, $offset);
     }
 
