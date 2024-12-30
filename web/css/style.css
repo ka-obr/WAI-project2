@@ -66,7 +66,7 @@ header::before {
 
 nav ul {
     display: flex;
-    justify-content: space-between;
+    justify-content: center;
     list-style-type: none;
     padding: 10px 50px;
     background-color: #8b5e3c;
@@ -76,7 +76,7 @@ nav ul {
 
 nav ul li {
     position: relative;
-    margin: 0 20px;
+    margin: 0 80px;
 }
 
 nav ul li a {

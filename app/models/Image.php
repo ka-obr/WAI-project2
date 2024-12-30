@@ -69,4 +69,8 @@ class Image {
 
         $this->repository->delete($fileName);
     }
+
+    public function getByFileName($fileName) {
+        return $this->repository->getByFileName($fileName);
+    }
 }

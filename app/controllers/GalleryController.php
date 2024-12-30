@@ -2,34 +2,29 @@
 
 namespace App\Controllers;
 
+use App\Services\GalleryService;
 use App\Models\Image;
+
+require_once __DIR__ . '/../config/GalleryLimit.php';
 
 class GalleryController {    
 
+    private $galleryService;
+
     public function __construct() {
         session_start();
+        $this->galleryService = new GalleryService();
     }
     
     public function index() {
         $page = isset($_GET['page']) ? (int)$_GET['page'] : 1;
-        $limit = 2;
-        $offset = ($page - 1) * $limit;
+        $limit = GALLERY_LIMIT;
 
-        $imageModel = new Image();
-        $images = $imageModel->getAll($limit, $offset);
-        $totalImages = $imageModel->countAll();
-        $totalPages = ceil($totalImages / $limit);
+        $data = $this->galleryService->getGalleryImages($page, $limit);
 
-        $preparedImages = array_map(function($image) {
-            return [
-                'thumbnail' => 'images/thumbnail_' . $image->fileName,
-                'watermarked' => 'images/watermarked_' . $image->fileName,
-                'checked' => in_array($image->fileName, $_SESSION['remembered'] ?? []) ? 'checked' : '',
-                'title' => $image->title,
-                'author' => $image->author,
-                'fileName' => $image->fileName
-            ];
-        }, $images);
+        $preparedImages = $data['images'];
+        $totalPages = $data['totalPages'];
+        $page = $data['page'];
 
         require_once __DIR__ . '/../../views/Gallery.php';
     }
@@ -67,15 +62,43 @@ class GalleryController {
 
     public function remember() {
         if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['remember'])) {
-            if (!isset($_SESSION['remembered'])) {
-                $_SESSION['remembered'] = [];
-            }
-            $_SESSION['remembered'] = array_unique(array_merge($_SESSION['remembered'], $_POST['remember']));
+            $this->galleryService->rememberImages($_POST['remember']);
         } else {
             $_SESSION['remembered'] = [];
         }
         $page = isset($_POST['page']) ? (int)$_POST['page'] : 1;
         header("Location: /MojaStrona/gallery?page=$page");
+        exit();
+    }
+
+    public function remembered() {
+        $page = isset($_GET['page']) ? (int)$_GET['page'] : 1;
+        $limit = GALLERY_LIMIT;
+
+        $data = $this->galleryService->getRememberedImages($page, $limit);
+
+        $rememberedImages = $data['images'];
+        $totalPages = $data['totalPages'];
+        $page = $data['page'];
+
+        require_once __DIR__ . '/../../views/Remembered.php';
+    }
+
+    public function removeRemembered() {
+        if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['remember'])) {
+            $this->galleryService->removeRememberedImages($_POST['remember']);
+        }
+
+        $page = isset($_POST['page']) ? (int)$_POST['page'] : 1;
+        $limit = GALLERY_LIMIT;
+        $totalImages = count($_SESSION['remembered']);
+        $totalPages = ceil($totalImages / $limit);
+
+        if ($page > $totalPages) {
+            $page = $totalPages;
+        }
+
+        header("Location: /MojaStrona/remembered?page=$page");
         exit();
     }
 }

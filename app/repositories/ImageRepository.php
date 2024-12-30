@@ -36,4 +36,9 @@ class ImageRepository {
         $collection = $this->database->images;
         $collection->deleteOne(['fileName' => $fileName]);
     }
+
+    public function getByFileName($fileName) {
+        $collection = $this->database->images;
+        return $collection->findOne(['fileName' => $fileName]);
+    }
 }

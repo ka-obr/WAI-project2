@@ -5,11 +5,11 @@
     <meta name = "viewport" content = "width=device-width, initial-scale=1.0">
     <link rel = "stylesheet" href = "/MojaStrona/web/css/style.css">
     <link rel = "stylesheet" href = "/MojaStrona/web/css/gallery.css">
-    <title>Galeria zdjęć</title>
+    <title>Zapamiętane zdjęcia</title>
 </head>
 <body>
     <header>
-        <h1>Galeria zdjęć</h1>
+        <h1>Zapamiętane zdjęcia</h1>
         <svg width="20" height="20" style="vertical-align: middle; margin-left: 8px;">
             <rect width="20" height="20" fill="#f0c674" rx="4" />
         </svg>
@@ -17,22 +17,22 @@
 
     <nav>
         <ul>
-            <li><a href = "/MojaStrona/remembered">Zapamiętane zdjęcia</a></li>
+            <li><a href = "/MojaStrona/gallery">Galeria</a></li>
             <li><a href = "/MojaStrona/upload">Prześlij zdjęcie</a></li>
         </ul>
     </nav>
     
     <main>
         <div class="tlo-prostokatne">
-            <h2>Galeria zdjęć</h2>
+            <h2>Zapamiętane zdjęcia</h2>
             
-            <form action="/MojaStrona/remember" method="post">
+            <form action="/MojaStrona/removeRemembered" method="post">
                 <input type="hidden" name="page" value="<?= $page ?>">
                 <div class="gallery">
-                    <?php if (empty($preparedImages)): ?>
-                        <p>Brak przesłanych zdjęć.</p>
+                    <?php if (empty($rememberedImages)): ?>
+                        <p>Brak zapamiętanych zdjęć do wyświetlenia.</p>
                     <?php else: ?>
-                        <?php foreach ($preparedImages as $image): ?>
+                        <?php foreach ($rememberedImages as $image): ?>
                             <figure>
                                 <a href="<?= htmlspecialchars($image['watermarked']) ?>">
                                     <img src="<?= htmlspecialchars($image['thumbnail']) ?>" alt="Zdjęcie" class="thumbnail">
@@ -42,12 +42,11 @@
                                     <strong>Autor:</strong> <?= htmlspecialchars($image['author']) ?>
                                 </figcaption>
                                 <input type="checkbox" name="remember[]" value="<?= htmlspecialchars($image['fileName']) ?>" <?= $image['checked'] ?>>
-                                <a href="/MojaStrona/delete?fileName=<?= htmlspecialchars($image['fileName']) ?>" class="delete-button">Usuń</a>
                             </figure>
                         <?php endforeach; ?>
                     <?php endif; ?>
                 </div>
-                <button type="submit" class="center-button">Zapamiętaj wybrane</button>
+                <button type="submit" class="center-button">Usuń zaznaczone z zapamiętanych</button>
             </form>
 
             <br>
