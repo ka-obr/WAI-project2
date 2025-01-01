@@ -41,16 +41,20 @@ class RememberController {
         if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['remember'])) {
             $this->rememberService->removeRememberedImages($_POST['remember']);
         }
-
+    
+        if (!isset($_SESSION['remembered'])) {
+            $_SESSION['remembered'] = [];
+        }
+    
         $page = isset($_POST['page']) ? (int)$_POST['page'] : 1;
         $limit = GALLERY_LIMIT;
         $totalImages = count($_SESSION['remembered']);
         $totalPages = ceil($totalImages / $limit);
-
+    
         if ($page > $totalPages) {
             $page = $totalPages;
         }
-
+    
         header("Location: /MojaStrona/remembered?page=$page");
         exit();
     }
