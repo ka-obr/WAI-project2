@@ -27,18 +27,21 @@ class Image {
 
     public function save($file, $title, $author, $watermark) {
         $fileName = basename($file['name']);
-        $fileType = mime_content_type($file['tmp_name']);
         $fileSize = $file['size'];
         $target = self::$uploadDir . $fileName;
-
+    
+        $finfo = finfo_open(FILEINFO_MIME_TYPE);
+        $fileType = finfo_file($finfo, $file['tmp_name']);
+        finfo_close($finfo);
+    
         $errors = FileValidator::validate($fileType, $fileSize);
         if (!empty($errors)) {
             return ['success' => false, 'error' => implode(' ', $errors)];
         }
-
+    
         if (move_uploaded_file($file['tmp_name'], $target)) {
             ImageProcessor::process($target, $fileName, $watermark);
-
+    
             $data = [
                 'fileName' => $fileName,
                 'title' => $title,
@@ -47,7 +50,7 @@ class Image {
                 'created_at' => new \MongoDB\BSON\UTCDateTime(),
             ];
             $this->repository->save($data);
-
+    
             return ['success' => true];
         } else {
             return ['success' => false, 'error' => 'Nie udało się przesłać pliku.'];
