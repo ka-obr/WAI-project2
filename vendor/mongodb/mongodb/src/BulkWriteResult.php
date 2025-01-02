@@ -25,16 +25,13 @@ use MongoDB\Exception\BadMethodCallException;
  */
 class BulkWriteResult
 {
-    /** @var WriteResult */
     private $writeResult;
-
-    /** @var mixed[] */
     private $insertedIds;
-
-    /** @var boolean */
     private $isAcknowledged;
 
     /**
+     * Constructor.
+     *
      * @param WriteResult $writeResult
      * @param mixed[]     $insertedIds
      */
@@ -87,7 +84,7 @@ class BulkWriteResult
      * The index of each ID in the map corresponds to each document's position
      * in the bulk operation. If a document had an ID prior to inserting (i.e.
      * the driver did not generate an ID), the index will contain its "_id"
-     * field value. Any driver-generated ID will be a MongoDB\BSON\ObjectId
+     * field value. Any driver-generated ID will be a MongoDB\BSON\ObjectID
      * instance.
      *
      * @return mixed[]
@@ -160,7 +157,7 @@ class BulkWriteResult
      * The index of each ID in the map corresponds to each document's position
      * in bulk operation. If a document had an ID prior to upserting (i.e. the
      * server did not need to generate an ID), this will contain its "_id". Any
-     * server-generated ID will be a MongoDB\BSON\ObjectId instance.
+     * server-generated ID will be a MongoDB\BSON\ObjectID instance.
      *
      * This method should only be called if the write was acknowledged.
      *

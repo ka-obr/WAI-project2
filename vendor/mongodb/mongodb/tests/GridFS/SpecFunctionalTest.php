@@ -2,32 +2,16 @@
 
 namespace MongoDB\Tests\GridFS;
 
-use DateTime;
-use IteratorIterator;
-use LogicException;
+use MongoDB\Collection;
 use MongoDB\BSON\Binary;
 use MongoDB\BSON\ObjectId;
 use MongoDB\BSON\UTCDateTime;
-use MongoDB\Collection;
-use MongoDB\GridFS\Exception\FileNotFoundException;
 use MongoDB\Operation\BulkWrite;
+use DateTime;
+use Exception;
+use IteratorIterator;
+use LogicException;
 use MultipleIterator;
-use PHPUnit\Framework\Error\Warning;
-use Symfony\Bridge\PhpUnit\SetUpTearDownTrait;
-use Throwable;
-use function array_walk;
-use function array_walk_recursive;
-use function file_get_contents;
-use function glob;
-use function hex2bin;
-use function in_array;
-use function is_array;
-use function is_string;
-use function json_decode;
-use function str_replace;
-use function stream_get_contents;
-use function strncmp;
-use function var_export;
 
 /**
  * GridFS spec functional tests.
@@ -36,15 +20,10 @@ use function var_export;
  */
 class SpecFunctionalTest extends FunctionalTestCase
 {
-    use SetUpTearDownTrait;
-
-    /** @var Collection */
     private $expectedChunksCollection;
-
-    /** @var Collection */
     private $expectedFilesCollection;
 
-    private function doSetUp()
+    public function setUp()
     {
         parent::setUp();
 
@@ -60,6 +39,7 @@ class SpecFunctionalTest extends FunctionalTestCase
      */
     public function testSpecification(array $initialData, array $test)
     {
+        $this->setName(str_replace(' ', '_', $test['description']));
         $this->initializeData($initialData);
 
         if (isset($test['arrange'])) {
@@ -70,17 +50,8 @@ class SpecFunctionalTest extends FunctionalTestCase
 
         try {
             $result = $this->executeAct($test['act']);
-        } catch (Throwable $e) {
+        } catch (Exception $e) {
             $result = $e;
-        }
-
-        /* Per the GridFS spec: "Drivers MAY attempt to delete any orphaned
-         * chunks with files_id equal to id before raising the error." The spec
-         * tests do not expect orphaned chunks to be removed, so we manually
-         * remove those chunks from the expected collection. */
-        if ($test['act']['operation'] === 'delete' && $result instanceof FileNotFoundException) {
-            $filesId = $this->convertTypes($test['act'])['arguments']['id'];
-            $this->expectedChunksCollection->deleteMany(['files_id' => $filesId]);
         }
 
         if (isset($test['assert'])) {
@@ -96,8 +67,7 @@ class SpecFunctionalTest extends FunctionalTestCase
             $json = json_decode(file_get_contents($filename), true);
 
             foreach ($json['tests'] as $test) {
-                $name = str_replace(' ', '_', $test['description']);
-                $testArgs[$name] = [$json['data'], $test];
+                $testArgs[] = [$json['data'], $test];
             }
         }
 
@@ -120,7 +90,7 @@ class SpecFunctionalTest extends FunctionalTestCase
      */
     private function assertEquivalentCollections($expectedCollection, $actualCollection, $actualResult)
     {
-        $mi = new MultipleIterator(MultipleIterator::MIT_NEED_ANY);
+        $mi = new MultipleIterator;
         $mi->attachIterator(new IteratorIterator($expectedCollection->find()));
         $mi->attachIterator(new IteratorIterator($actualCollection->find()));
 
@@ -128,7 +98,7 @@ class SpecFunctionalTest extends FunctionalTestCase
             list($expectedDocument, $actualDocument) = $documents;
 
             foreach ($expectedDocument as $key => $value) {
-                if (! is_string($value)) {
+                if ( ! is_string($value)) {
                     continue;
                 }
 
@@ -136,7 +106,7 @@ class SpecFunctionalTest extends FunctionalTestCase
                     $expectedDocument[$key] = $actualResult;
                 }
 
-                if (! strncmp($value, '*actual_', 8)) {
+                if ( ! strncmp($value, '*actual_', 8)) {
                     $expectedDocument[$key] = $actualDocument[$key];
                 }
             }
@@ -148,7 +118,7 @@ class SpecFunctionalTest extends FunctionalTestCase
     /**
      * Convert encoded types in the array and return the modified array.
      *
-     * Nested arrays with "$oid" and "$date" keys will be converted to ObjectId
+     * Nested arrays with "$oid" and "$date" keys will be converted to ObjectID
      * and UTCDateTime instances, respectively. Nested arrays with "$hex" keys
      * will be converted to a string or Binary object.
      *
@@ -161,14 +131,13 @@ class SpecFunctionalTest extends FunctionalTestCase
         /* array_walk_recursive() only visits leaf nodes within the array, so we
          * need to manually recurse.
          */
-        array_walk($data, function (&$value) use ($createBinary) {
-            if (! is_array($value)) {
+        array_walk($data, function(&$value) use ($createBinary) {
+            if ( ! is_array($value)) {
                 return;
             }
 
             if (isset($value['$oid'])) {
                 $value = new ObjectId($value['$oid']);
-
                 return;
             }
 
@@ -182,7 +151,6 @@ class SpecFunctionalTest extends FunctionalTestCase
 
             if (isset($value['$date'])) {
                 $value = new UTCDateTime(new DateTime($value['$date']));
-
                 return;
             }
 
@@ -206,19 +174,23 @@ class SpecFunctionalTest extends FunctionalTestCase
         switch ($act['operation']) {
             case 'delete':
                 return $this->bucket->delete($act['arguments']['id']);
+
             case 'download':
                 return stream_get_contents($this->bucket->openDownloadStream($act['arguments']['id']));
+
             case 'download_by_name':
                 return stream_get_contents($this->bucket->openDownloadStreamByName(
                     $act['arguments']['filename'],
-                    $act['arguments']['options'] ?? []
+                    isset($act['arguments']['options']) ? $act['arguments']['options'] : []
                 ));
+
             case 'upload':
                 return $this->bucket->uploadFromStream(
                     $act['arguments']['filename'],
                     $this->createStream($act['arguments']['source']),
-                    $act['arguments']['options'] ?? []
+                    isset($act['arguments']['options']) ? $act['arguments']['options'] : []
                 );
+
             default:
                 throw new LogicException('Unsupported act: ' . $act['operation']);
         }
@@ -242,16 +214,16 @@ class SpecFunctionalTest extends FunctionalTestCase
             $this->executeAssertResult($assert['result'], $actualResult);
         }
 
-        if (! isset($assert['data'])) {
+        if ( ! isset($assert['data'])) {
             return;
         }
 
         /* Since "*actual" may be used for an expected document's "_id", append
          * a unique value to avoid duplicate key exceptions.
          */
-        array_walk_recursive($assert['data'], function (&$value) {
+        array_walk_recursive($assert['data'], function(&$value) {
             if ($value === '*actual') {
-                $value .= '_' . new ObjectId();
+                $value .= '_' . new ObjectId;
             }
         });
 
@@ -297,15 +269,11 @@ class SpecFunctionalTest extends FunctionalTestCase
      */
     private function executeDataModification(array $dataModification)
     {
-        if (empty($dataModification)) {
-            throw new LogicException('Command for data modification is empty');
-        }
-
         foreach ($dataModification as $type => $collectionName) {
             break;
         }
 
-        if (! in_array($collectionName, ['fs.files', 'fs.chunks', 'expected.files', 'expected.chunks'])) {
+        if ( ! in_array($collectionName, ['fs.files', 'fs.chunks', 'expected.files', 'expected.chunks'])) {
             throw new LogicException('Unsupported collection: ' . $collectionName);
         }
 
@@ -355,13 +323,15 @@ class SpecFunctionalTest extends FunctionalTestCase
         switch ($error) {
             case 'FileNotFound':
             case 'RevisionNotFound':
-                return FileNotFoundException::class;
+                return 'MongoDB\GridFS\Exception\FileNotFoundException';
+
             case 'ChunkIsMissing':
             case 'ChunkIsWrongSize':
                 /* Although ReadableStream throws a CorruptFileException, the
                  * stream wrapper will convert it to a PHP error of type
                  * E_USER_WARNING. */
-                return Warning::class;
+                return 'PHPUnit_Framework_Error_Warning';
+
             default:
                 throw new LogicException('Unsupported error: ' . $error);
         }
@@ -376,12 +346,12 @@ class SpecFunctionalTest extends FunctionalTestCase
     {
         $data = $this->convertTypes($data);
 
-        if (! empty($data['files'])) {
+        if ( ! empty($data['files'])) {
             $this->filesCollection->insertMany($data['files']);
             $this->expectedFilesCollection->insertMany($data['files']);
         }
 
-        if (! empty($data['chunks'])) {
+        if ( ! empty($data['chunks'])) {
             $this->chunksCollection->insertMany($data['chunks']);
             $this->expectedChunksCollection->insertMany($data['chunks']);
         }

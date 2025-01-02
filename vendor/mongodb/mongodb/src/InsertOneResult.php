@@ -25,16 +25,13 @@ use MongoDB\Exception\BadMethodCallException;
  */
 class InsertOneResult
 {
-    /** @var WriteResult */
     private $writeResult;
-
-    /** @var mixed */
     private $insertedId;
-
-    /** @var boolean */
     private $isAcknowledged;
 
     /**
+     * Constructor.
+     *
      * @param WriteResult $writeResult
      * @param mixed       $insertedId
      */
@@ -68,7 +65,7 @@ class InsertOneResult
      *
      * If the document had an ID prior to inserting (i.e. the driver did not
      * need to generate an ID), this will contain its "_id". Any
-     * driver-generated ID will be a MongoDB\BSON\ObjectId instance.
+     * driver-generated ID will be a MongoDB\BSON\ObjectID instance.
      *
      * @return mixed
      */

@@ -18,8 +18,8 @@
 namespace MongoDB\Operation;
 
 use MongoDB\DeleteResult;
-use MongoDB\Driver\Exception\RuntimeException as DriverRuntimeException;
 use MongoDB\Driver\Server;
+use MongoDB\Driver\Exception\RuntimeException as DriverRuntimeException;
 use MongoDB\Exception\InvalidArgumentException;
 use MongoDB\Exception\UnsupportedException;
 
@@ -30,9 +30,8 @@ use MongoDB\Exception\UnsupportedException;
  * @see \MongoDB\Collection::deleteOne()
  * @see http://docs.mongodb.org/manual/reference/command/delete/
  */
-class DeleteMany implements Executable, Explainable
+class DeleteMany implements Executable
 {
-    /** @var Delete */
     private $delete;
 
     /**
@@ -44,17 +43,6 @@ class DeleteMany implements Executable, Explainable
      *
      *    This is not supported for server versions < 3.4 and will result in an
      *    exception at execution time if used.
-     *
-     *  * hint (string|document): The index to use. Specify either the index
-     *    name as a string or the index key pattern as a document. If specified,
-     *    then the query system will only consider plans using the hinted index.
-     *
-     *    This is not supported for server versions < 4.4 and will result in an
-     *    exception at execution time if used.
-     *
-     *  * session (MongoDB\Driver\Session): Client session.
-     *
-     *    Sessions are not supported for server versions < 3.6.
      *
      *  * writeConcern (MongoDB\Driver\WriteConcern): Write concern.
      *
@@ -81,10 +69,5 @@ class DeleteMany implements Executable, Explainable
     public function execute(Server $server)
     {
         return $this->delete->execute($server);
-    }
-
-    public function getCommandDocument(Server $server)
-    {
-        return $this->delete->getCommandDocument($server);
     }
 }

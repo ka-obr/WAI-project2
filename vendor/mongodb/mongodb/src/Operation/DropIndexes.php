@@ -18,16 +18,11 @@
 namespace MongoDB\Operation;
 
 use MongoDB\Driver\Command;
-use MongoDB\Driver\Exception\RuntimeException as DriverRuntimeException;
 use MongoDB\Driver\Server;
-use MongoDB\Driver\Session;
 use MongoDB\Driver\WriteConcern;
+use MongoDB\Driver\Exception\RuntimeException as DriverRuntimeException;
 use MongoDB\Exception\InvalidArgumentException;
 use MongoDB\Exception\UnsupportedException;
-use function current;
-use function is_array;
-use function is_integer;
-use function MongoDB\server_supports_feature;
 
 /**
  * Operation for the dropIndexes command.
@@ -38,32 +33,17 @@ use function MongoDB\server_supports_feature;
  */
 class DropIndexes implements Executable
 {
-    /** @var integer */
     private static $wireVersionForWriteConcern = 5;
 
-    /** @var string */
     private $databaseName;
-
-    /** @var string */
     private $collectionName;
-
-    /** @var string */
     private $indexName;
-
-    /** @var array */
     private $options;
 
     /**
      * Constructs a dropIndexes command.
      *
      * Supported options:
-     *
-     *  * maxTimeMS (integer): The maximum amount of time to allow the query to
-     *    run.
-     *
-     *  * session (MongoDB\Driver\Session): Client session.
-     *
-     *    Sessions are not supported for server versions < 3.6.
      *
      *  * typeMap (array): Type map for BSON deserialization. This will be used
      *    for the returned command result document.
@@ -87,24 +67,12 @@ class DropIndexes implements Executable
             throw new InvalidArgumentException('$indexName cannot be empty');
         }
 
-        if (isset($options['maxTimeMS']) && ! is_integer($options['maxTimeMS'])) {
-            throw InvalidArgumentException::invalidType('"maxTimeMS" option', $options['maxTimeMS'], 'integer');
-        }
-
-        if (isset($options['session']) && ! $options['session'] instanceof Session) {
-            throw InvalidArgumentException::invalidType('"session" option', $options['session'], Session::class);
-        }
-
         if (isset($options['typeMap']) && ! is_array($options['typeMap'])) {
             throw InvalidArgumentException::invalidType('"typeMap" option', $options['typeMap'], 'array');
         }
 
         if (isset($options['writeConcern']) && ! $options['writeConcern'] instanceof WriteConcern) {
-            throw InvalidArgumentException::invalidType('"writeConcern" option', $options['writeConcern'], WriteConcern::class);
-        }
-
-        if (isset($options['writeConcern']) && $options['writeConcern']->isDefault()) {
-            unset($options['writeConcern']);
+            throw InvalidArgumentException::invalidType('"writeConcern" option', $options['writeConcern'], 'MongoDB\Driver\WriteConcern');
         }
 
         $this->databaseName = (string) $databaseName;
@@ -124,16 +92,11 @@ class DropIndexes implements Executable
      */
     public function execute(Server $server)
     {
-        if (isset($this->options['writeConcern']) && ! server_supports_feature($server, self::$wireVersionForWriteConcern)) {
+        if (isset($this->options['writeConcern']) && ! \MongoDB\server_supports_feature($server, self::$wireVersionForWriteConcern)) {
             throw UnsupportedException::writeConcernNotSupported();
         }
 
-        $inTransaction = isset($this->options['session']) && $this->options['session']->isInTransaction();
-        if ($inTransaction && isset($this->options['writeConcern'])) {
-            throw UnsupportedException::writeConcernNotSupportedInTransaction();
-        }
-
-        $cursor = $server->executeWriteCommand($this->databaseName, $this->createCommand(), $this->createOptions());
+        $cursor = $server->executeCommand($this->databaseName, $this->createCommand());
 
         if (isset($this->options['typeMap'])) {
             $cursor->setTypeMap($this->options['typeMap']);
@@ -154,31 +117,10 @@ class DropIndexes implements Executable
             'index' => $this->indexName,
         ];
 
-        if (isset($this->options['maxTimeMS'])) {
-            $cmd['maxTimeMS'] = $this->options['maxTimeMS'];
+        if (isset($this->options['writeConcern'])) {
+            $cmd['writeConcern'] = \MongoDB\write_concern_as_document($this->options['writeConcern']);
         }
 
         return new Command($cmd);
-    }
-
-    /**
-     * Create options for executing the command.
-     *
-     * @see http://php.net/manual/en/mongodb-driver-server.executewritecommand.php
-     * @return array
-     */
-    private function createOptions()
-    {
-        $options = [];
-
-        if (isset($this->options['session'])) {
-            $options['session'] = $this->options['session'];
-        }
-
-        if (isset($this->options['writeConcern'])) {
-            $options['writeConcern'] = $this->options['writeConcern'];
-        }
-
-        return $options;
     }
 }

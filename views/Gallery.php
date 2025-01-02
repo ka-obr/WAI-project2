@@ -3,8 +3,8 @@
 <head>
     <meta charset = "UTF-8">
     <meta name = "viewport" content = "width=device-width, initial-scale=1.0">
-    <link rel = "stylesheet" href = "/MojaStrona/web/css/style.css">
-    <link rel = "stylesheet" href = "/MojaStrona/web/css/gallery.css">
+    <link rel = "stylesheet" href = "/web/css/style.css">
+    <link rel = "stylesheet" href = "/web/css/gallery.css">
     <title>Galeria zdjęć</title>
 </head>
 <body>
@@ -17,9 +17,9 @@
 
     <nav>
         <ul>
-            <li><a href = "/MojaStrona/remembered">Zapamiętane zdjęcia</a></li>
-            <li><a href = "/MojaStrona/upload">Prześlij zdjęcie</a></li>
-            <li><a href = "/MojaStrona/resetSession">Restart sesji</a></li>
+            <li><a href = "/remembered">Zapamiętane zdjęcia</a></li>
+            <li><a href = "/upload">Prześlij zdjęcie</a></li>
+            <li><a href = "/resetSession">Restart sesji</a></li>
         </ul>
     </nav>
     
@@ -27,7 +27,7 @@
         <div class="tlo-prostokatne">
             <h2>Galeria zdjęć</h2>
             
-            <form action="/MojaStrona/remember" method="post">
+            <form action="/remember" method="post">
                 <input type="hidden" name="page" value="<?= $page ?>">
                 <div class="gallery">
                     <?php if (empty($preparedImages)): ?>
@@ -43,7 +43,7 @@
                                     <strong>Autor:</strong> <?= htmlspecialchars($image['author']) ?>
                                 </figcaption>
                                 <input type="checkbox" name="remember[]" value="<?= htmlspecialchars($image['fileName']) ?>" <?= $image['checked'] ?>>
-                                <a href="/MojaStrona/delete?fileName=<?= htmlspecialchars($image['fileName']) ?>" class="delete-button">Usuń</a>
+                                <a href="/delete?fileName=<?= htmlspecialchars($image['fileName']) ?>" class="delete-button">Usuń</a>
                             </figure>
                         <?php endforeach; ?>
                     <?php endif; ?>

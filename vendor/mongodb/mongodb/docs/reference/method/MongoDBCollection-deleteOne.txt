@@ -61,7 +61,7 @@ has ``"ny"`` as the value for the ``state`` field:
 
    <?php
 
-   $collection = (new MongoDB\Client)->test->users;
+   $collection = (new MongoDB\Client)->demo->users;
    $collection->drop();
 
    $collection->insertOne(['name' => 'Bob', 'state' => 'ny']);
@@ -80,5 +80,5 @@ See Also
 - :phpmethod:`MongoDB\\Collection::deleteMany()`
 - :phpmethod:`MongoDB\\Collection::bulkWrite()`
 - :doc:`/tutorial/crud`
-- :manual:`delete </reference/command/delete>` command reference  in the MongoDB
+- :manual:`delete </reference/command/delete` command reference  in the MongoDB
   manual

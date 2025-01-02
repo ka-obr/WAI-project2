@@ -17,10 +17,8 @@
 
 namespace MongoDB\Model;
 
-use ArrayAccess;
 use MongoDB\Exception\BadMethodCallException;
-use function array_key_exists;
-use function array_search;
+use ArrayAccess;
 
 /**
  * Index information model class.
@@ -39,10 +37,11 @@ use function array_search;
  */
 class IndexInfo implements ArrayAccess
 {
-    /** @var array */
     private $info;
 
     /**
+     * Constructor.
+     *
      * @param array $info Index info
      */
     public function __construct(array $info)
@@ -59,16 +58,6 @@ class IndexInfo implements ArrayAccess
     public function __debugInfo()
     {
         return $this->info;
-    }
-
-    /**
-     * Return the index name to allow casting IndexInfo to string.
-     *
-     * @return string
-     */
-    public function __toString()
-    {
-        return $this->getName();
     }
 
     /**
@@ -112,26 +101,6 @@ class IndexInfo implements ArrayAccess
     }
 
     /**
-     * Return whether or not this index is of type 2dsphere.
-     *
-     * @return boolean
-     */
-    public function is2dSphere()
-    {
-        return array_search('2dsphere', $this->getKey(), true) !== false;
-    }
-
-    /**
-     * Return whether or not this index is of type geoHaystack.
-     *
-     * @return boolean
-     */
-    public function isGeoHaystack()
-    {
-        return array_search('geoHaystack', $this->getKey(), true) !== false;
-    }
-
-    /**
      * Return whether this is a sparse index.
      *
      * @see http://docs.mongodb.org/manual/core/index-sparse/
@@ -140,16 +109,6 @@ class IndexInfo implements ArrayAccess
     public function isSparse()
     {
         return ! empty($this->info['sparse']);
-    }
-
-    /**
-     * Return whether or not this index is of type text.
-     *
-     * @return boolean
-     */
-    public function isText()
-    {
-        return array_search('text', $this->getKey(), true) !== false;
     }
 
     /**
@@ -207,24 +166,21 @@ class IndexInfo implements ArrayAccess
      * Not supported.
      *
      * @see http://php.net/arrayaccess.offsetset
-     * @param mixed $key
-     * @param mixed $value
      * @throws BadMethodCallException
      */
     public function offsetSet($key, $value)
     {
-        throw BadMethodCallException::classIsImmutable(self::class);
+        throw BadMethodCallException::classIsImmutable(__CLASS__);
     }
 
     /**
      * Not supported.
      *
      * @see http://php.net/arrayaccess.offsetunset
-     * @param mixed $key
      * @throws BadMethodCallException
      */
     public function offsetUnset($key)
     {
-        throw BadMethodCallException::classIsImmutable(self::class);
+        throw BadMethodCallException::classIsImmutable(__CLASS__);
     }
 }

@@ -3,6 +3,8 @@
 return [
     'mongo' => [
         'uri' => 'mongodb://localhost:27017',
-        'database' => 'moja_strona'
+        'username' => 'wai_web',
+        'password' => 'w@i_w3b',
+        'database' => 'wai'
     ]
 ];

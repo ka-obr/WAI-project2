@@ -17,8 +17,6 @@
 
 namespace MongoDB\Exception;
 
-use MongoDB\Driver\Exception\RuntimeException as DriverRuntimeException;
-
-class RuntimeException extends DriverRuntimeException implements Exception
+class RuntimeException extends \MongoDB\Driver\Exception\RuntimeException implements Exception
 {
 }

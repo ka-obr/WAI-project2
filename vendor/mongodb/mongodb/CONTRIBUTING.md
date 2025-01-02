@@ -20,14 +20,13 @@ Installation directions for Composer may be found in its
 
 ## Testing
 
-The library's test suite uses [PHPUnit](https://phpunit.de/), which is installed
-through the [PHPUnit Bridge](https://symfony.com/phpunit-bridge) dependency by
-Composer.
+The library's test suite uses [PHPUnit](https://phpunit.de/), which should be
+installed as a development dependency by Composer.
 
 The test suite may be executed with:
 
 ```
-$ vendor/bin/simple-phpunit
+$ vendor/bin/phpunit
 ```
 
 The `phpunit.xml.dist` file is used as the default configuration file for the
@@ -36,37 +35,13 @@ test suite. In addition to various PHPUnit options, it defines required
 this configuration by creating your own `phpunit.xml` file based on the
 `phpunit.xml.dist` file we provide.
 
-By default, the `simple-phpunit` binary chooses the correct PHPUnit version for
-the PHP version you are running. To run tests against a specific PHPUnit version,
-use the `SYMFONY_PHPUNIT_VERSION` environment variable:
+### Testing on HHVM
+
+By default, the PHPUnit script relies on the `php` interpreter for your shell
+(i.e. `#!/usr/bin/env php`). You can run the test suite with HHVM like so:
 
 ```
-$ SYMFONY_PHPUNIT_VERSION=7.5 vendor/bin/simple-phpunit
-```
-
-## Checking coding standards
-
-The library's code is checked using [PHP_CodeSniffer](https://github.com/squizlabs/PHP_CodeSniffer),
-which is installed as a development dependency by Composer. Due to the PHP
-requirement, the base version of the coding standard is not installed and needs
-to be added manually if you plan to contributing code:
-
-```
-$ composer require --dev doctrine/coding-standard=^6.0
-```
-
-Once the coding standard has been installed, you can check the code for style
-errors:
-
-
-```
-$ vendor/bin/phpcs
-```
-
-To automatically fix all fixable errors, use the `phpcbf` binary:
-
-```
-$ vendor/bin/phpcbf
+$ hhvm vendor/bin/phpunit
 ```
 
 ## Documentation
@@ -98,7 +73,8 @@ releasing the `vX.Y` branch as X.Y.Z).
 
 ### Ensure PHP version compatibility
 
-Ensure that the library test suite completes on supported versions of PHP.
+Ensure that the library test suite completes on supported versions of PHP and
+HHVM.
 
 ### Transition JIRA issues and version
 
@@ -123,6 +99,10 @@ Before proceeding, ensure that the `master` branch is up-to-date with all code
 changes in this maintenance branch. This is important because we will later
 merge the ensuing release commits up to master with `--strategy=ours`, which
 will ignore changes from the merged commits.
+
+A version constant may be added at a later date (see:
+[PHPLIB-131](https://jira.mongodb.org/browse/PHPLIB-131)). For now, there is
+nothing to update.
 
 ### Tag release
 
@@ -155,7 +135,7 @@ The following template should be used for creating GitHub release notes via
 [this form](https://github.com/mongodb/mongo-php-library/releases/new).
 
 ```
-The PHP team is happy to announce that version X.Y.Z of the MongoDB PHP library is now available. This library is a high-level abstraction for the [`mongodb`](http://php.net/mongodb) extension.
+The PHP team is happy to announce that version X.Y.Z of our MongoDB PHP library is now available. This library is a high-level abstraction for the PHP 5, PHP 7, and HHVM drivers (i.e. [`mongodb`](http://php.net/mongodb) extension).
 
 **Release Highlights**
 
@@ -180,7 +160,7 @@ This library may be installed or upgraded with:
 
     composer require mongodb/mongodb
 
-Installation instructions for the `mongodb` extension may be found in the [PHP.net documentation](http://php.net/manual/en/mongodb.installation.php).
+Installation instructions for the PHP and HHVM driver may be found in the [PHP.net documentation](http://php.net/manual/en/mongodb.installation.php).
 ```
 
 The URL for the list of resolved JIRA issues will need to be updated with each
@@ -198,13 +178,8 @@ Thanks for our community contributors for this release:
  * [$CONTRIBUTOR_NAME](https://github.com/$GITHUB_USERNAME)
 ```
 
-Release announcements should also be sent to the [MongoDB Product & Driver Announcements](https://community.mongodb.com/tags/c/community/release-notes/35/php-driver).
+Release announcements should also be sent to the `mongodb-user@googlegroups.com`
+and `mongodb-announce@googlegroups.com` mailing lists.
 
 Consider announcing each release on Twitter. Significant releases should also be
 announced via [@MongoDB](http://twitter.com/mongodb) as well.
-
-### Update compatibility tables in MongoDB docs
-
-The [compatibility tables](https://docs.mongodb.com/drivers/driver-compatibility-reference#php-driver-compatibility) in
-the MongoDB documentation must be updated to account for new releases. Make sure to update both MongoDB and Language
-compatibility tables, as shown in [this pull request](https://github.com/mongodb/docs-ecosystem/pull/642).

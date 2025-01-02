@@ -17,8 +17,6 @@
 
 namespace MongoDB\Exception;
 
-use MongoDB\Driver\Exception\Exception as DriverException;
-
-interface Exception extends DriverException
+interface Exception extends \MongoDB\Driver\Exception\Exception
 {
 }

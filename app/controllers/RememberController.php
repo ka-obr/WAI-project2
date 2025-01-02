@@ -20,7 +20,7 @@ class RememberController {
             $_SESSION['remembered'] = [];
         }
         $page = isset($_POST['page']) ? (int)$_POST['page'] : 1;
-        header("Location: /MojaStrona/gallery?page=$page");
+        header("Location: /gallery?page=$page");
         exit();
     }
 
@@ -55,7 +55,7 @@ class RememberController {
             $page = $totalPages;
         }
     
-        header("Location: /MojaStrona/remembered?page=$page");
+        header("Location: /remembered?page=$page");
         exit();
     }
 }

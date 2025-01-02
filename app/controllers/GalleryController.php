@@ -39,7 +39,7 @@ class GalleryController {
             $result = $imageModel->save($_FILES['image'], $_POST['title'], $_POST['author'], $_POST['watermark']);
     
             if ($result['success']) {
-                header('Location: /MojaStrona/gallery');
+                header('Location: /gallery');
                 exit();
             } else {
                 $error = $result['error'];
@@ -55,14 +55,14 @@ class GalleryController {
         if ($_SERVER['REQUEST_METHOD'] === 'GET' && isset($_GET['fileName'])) {
             $imageModel = new Image();
             $imageModel->delete($_GET['fileName']);
-            header('Location: /MojaStrona/gallery');
+            header('Location: /gallery');
             exit();
         }
     }
 
     public function resetSession() {
         session_destroy();
-        header('Location: /MojaStrona/gallery');
+        header('Location: /gallery');
         exit();
     }
 }

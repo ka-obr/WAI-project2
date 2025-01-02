@@ -11,7 +11,13 @@ class MongoDatabase {
 
     private function __construct() {
         $config = require __DIR__ . '/../config/MongoDataBase.php';
-        $this->client = new Client($config['mongo']['uri']);
+        $this->client = new Client(
+            $config['mongo']['uri'],
+            [
+                'username' => $config['mongo']['username'],
+                'password' => $config['mongo']['password'],
+            ]
+        );
         $this->database = $this->client->selectDatabase($config['mongo']['database']);
     }
 

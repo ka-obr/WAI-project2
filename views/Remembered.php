@@ -3,8 +3,8 @@
 <head>
     <meta charset = "UTF-8">
     <meta name = "viewport" content = "width=device-width, initial-scale=1.0">
-    <link rel = "stylesheet" href = "/MojaStrona/web/css/style.css">
-    <link rel = "stylesheet" href = "/MojaStrona/web/css/gallery.css">
+    <link rel = "stylesheet" href = "/web/css/style.css">
+    <link rel = "stylesheet" href = "/web/css/gallery.css">
     <title>Zapamiętane zdjęcia</title>
 </head>
 <body>
@@ -17,9 +17,9 @@
 
     <nav>
         <ul>
-            <li><a href = "/MojaStrona/gallery">Galeria</a></li>
-            <li><a href = "/MojaStrona/upload">Prześlij zdjęcie</a></li>
-            <li><a href = "/MojaStrona/resetSession">Restart sesji</a></li>
+            <li><a href = "/gallery">Galeria</a></li>
+            <li><a href = "/upload">Prześlij zdjęcie</a></li>
+            <li><a href = "/resetSession">Restart sesji</a></li>
         </ul>
     </nav>
     
@@ -27,7 +27,7 @@
         <div class="tlo-prostokatne">
             <h2>Zapamiętane zdjęcia</h2>
             
-            <form action="/MojaStrona/removeRemembered" method="post">
+            <form action="/removeRemembered" method="post">
                 <input type="hidden" name="page" value="<?= $page ?>">
                 <div class="gallery">
                     <?php if (empty($rememberedImages)): ?>

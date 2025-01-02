@@ -1,6 +1,6 @@
 <?php
 /*
- * Copyright 2016-present MongoDB, Inc.
+ * Copyright 2016-2017 MongoDB, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,11 +17,10 @@
 
 namespace MongoDB\Model;
 
-use ArrayObject;
-use JsonSerializable;
 use MongoDB\BSON\Serializable;
 use MongoDB\BSON\Unserializable;
-use function MongoDB\recursive_copy;
+use ArrayObject;
+use JsonSerializable;
 
 /**
  * Model class for a BSON document.
@@ -34,23 +33,12 @@ use function MongoDB\recursive_copy;
 class BSONDocument extends ArrayObject implements JsonSerializable, Serializable, Unserializable
 {
     /**
-     * Deep clone this BSONDocument.
-     */
-    public function __clone()
-    {
-        foreach ($this as $key => $value) {
-            $this[$key] = recursive_copy($value);
-        }
-    }
-
-    /**
+     * Constructor.
+     *
      * This overrides the parent constructor to allow property access of entries
      * by default.
      *
      * @see http://php.net/arrayobject.construct
-     * @param array   $input
-     * @param integer $flags
-     * @param string  $iterator_class
      */
     public function __construct($input = [], $flags = ArrayObject::ARRAY_AS_PROPS, $iterator_class = 'ArrayIterator')
     {
@@ -67,7 +55,7 @@ class BSONDocument extends ArrayObject implements JsonSerializable, Serializable
      */
     public static function __set_state(array $properties)
     {
-        $document = new static();
+        $document = new static;
         $document->exchangeArray($properties);
 
         return $document;

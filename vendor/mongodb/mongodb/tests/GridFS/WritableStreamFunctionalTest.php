@@ -2,32 +2,23 @@
 
 namespace MongoDB\Tests\GridFS;
 
-use MongoDB\Exception\InvalidArgumentException;
 use MongoDB\GridFS\CollectionWrapper;
 use MongoDB\GridFS\WritableStream;
-use Symfony\Bridge\PhpUnit\SetUpTearDownTrait;
-use function str_repeat;
 
 /**
  * Functional tests for the internal WritableStream class.
  */
 class WritableStreamFunctionalTest extends FunctionalTestCase
 {
-    use SetUpTearDownTrait;
-
-    /** @var CollectionWrapper */
     private $collectionWrapper;
 
-    private function doSetUp()
+    public function setUp()
     {
         parent::setUp();
 
         $this->collectionWrapper = new CollectionWrapper($this->manager, $this->getDatabaseName(), 'fs');
     }
 
-    /**
-     * @doesNotPerformAssertions
-     */
     public function testValidConstructorOptions()
     {
         new WritableStream($this->collectionWrapper, 'filename', [
@@ -38,11 +29,11 @@ class WritableStreamFunctionalTest extends FunctionalTestCase
     }
 
     /**
+     * @expectedException MongoDB\Exception\InvalidArgumentException
      * @dataProvider provideInvalidConstructorOptions
      */
     public function testConstructorOptionTypeChecks(array $options)
     {
-        $this->expectException(InvalidArgumentException::class);
         new WritableStream($this->collectionWrapper, 'filename', $options);
     }
 
@@ -50,12 +41,8 @@ class WritableStreamFunctionalTest extends FunctionalTestCase
     {
         $options = [];
 
-        foreach ($this->getInvalidIntegerValues(true) as $value) {
+        foreach ($this->getInvalidIntegerValues() as $value) {
             $options[][] = ['chunkSizeBytes' => $value];
-        }
-
-        foreach ($this->getInvalidBooleanValues(true) as $value) {
-            $options[][] = ['disableMD5' => $value];
         }
 
         foreach ($this->getInvalidDocumentValues() as $value) {
@@ -65,10 +52,12 @@ class WritableStreamFunctionalTest extends FunctionalTestCase
         return $options;
     }
 
+    /**
+     * @expectedException MongoDB\Exception\InvalidArgumentException
+     * @expectedExceptionMessage Expected "chunkSizeBytes" option to be >= 1, 0 given
+     */
     public function testConstructorShouldRequireChunkSizeBytesOptionToBePositive()
     {
-        $this->expectException(InvalidArgumentException::class);
-        $this->expectExceptionMessage('Expected "chunkSizeBytes" option to be >= 1, 0 given');
         new WritableStream($this->collectionWrapper, 'filename', ['chunkSizeBytes' => 0]);
     }
 

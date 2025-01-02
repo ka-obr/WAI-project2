@@ -17,12 +17,10 @@
 
 namespace MongoDB\Operation;
 
-use MongoDB\Driver\Exception\RuntimeException as DriverRuntimeException;
 use MongoDB\Driver\Server;
+use MongoDB\Driver\Exception\RuntimeException as DriverRuntimeException;
 use MongoDB\Exception\InvalidArgumentException;
 use MongoDB\Exception\UnsupportedException;
-use function is_array;
-use function is_object;
 
 /**
  * Operation for deleting a document with the findAndModify command.
@@ -31,9 +29,8 @@ use function is_object;
  * @see \MongoDB\Collection::findOneAndDelete()
  * @see http://docs.mongodb.org/manual/reference/command/findAndModify/
  */
-class FindOneAndDelete implements Executable, Explainable
+class FindOneAndDelete implements Executable
 {
-    /** @var FindAndModify */
     private $findAndModify;
 
     /**
@@ -46,22 +43,11 @@ class FindOneAndDelete implements Executable, Explainable
      *    This is not supported for server versions < 3.4 and will result in an
      *    exception at execution time if used.
      *
-     *  * hint (string|document): The index to use. Specify either the index
-     *    name as a string or the index key pattern as a document. If specified,
-     *    then the query system will only consider plans using the hinted index.
-     *
-     *    This is not supported for server versions < 4.4 and will result in an
-     *    exception at execution time if used.
-     *
      *  * maxTimeMS (integer): The maximum amount of time to allow the query to
      *    run.
      *
      *  * projection (document): Limits the fields to return for the matching
      *    document.
-     *
-     *  * session (MongoDB\Driver\Session): Client session.
-     *
-     *    Sessions are not supported for server versions < 3.6.
      *
      *  * sort (document): Determines which document the operation modifies if
      *    the query selects multiple documents.
@@ -81,7 +67,7 @@ class FindOneAndDelete implements Executable, Explainable
      */
     public function __construct($databaseName, $collectionName, $filter, array $options = [])
     {
-        if (! is_array($filter) && ! is_object($filter)) {
+        if ( ! is_array($filter) && ! is_object($filter)) {
             throw InvalidArgumentException::invalidType('$filter', $filter, 'array or object');
         }
 
@@ -114,10 +100,5 @@ class FindOneAndDelete implements Executable, Explainable
     public function execute(Server $server)
     {
         return $this->findAndModify->execute($server);
-    }
-
-    public function getCommandDocument(Server $server)
-    {
-        return $this->findAndModify->getCommandDocument($server);
     }
 }

@@ -18,19 +18,13 @@
 namespace MongoDB\Operation;
 
 use MongoDB\Driver\Command;
-use MongoDB\Driver\Exception\RuntimeException as DriverRuntimeException;
 use MongoDB\Driver\Server;
-use MongoDB\Driver\Session;
+use MongoDB\Driver\BulkWrite as Bulk;
 use MongoDB\Driver\WriteConcern;
+use MongoDB\Driver\Exception\RuntimeException as DriverRuntimeException;
 use MongoDB\Exception\InvalidArgumentException;
 use MongoDB\Exception\UnsupportedException;
 use MongoDB\Model\IndexInput;
-use function array_map;
-use function is_array;
-use function is_integer;
-use function is_string;
-use function MongoDB\server_supports_feature;
-use function sprintf;
 
 /**
  * Operation for the createIndexes command.
@@ -42,45 +36,20 @@ use function sprintf;
  */
 class CreateIndexes implements Executable
 {
-    /** @var integer */
     private static $wireVersionForCollation = 5;
-
-    /** @var integer */
+    private static $wireVersionForCommand = 2;
     private static $wireVersionForWriteConcern = 5;
 
-    /** @var integer */
-    private static $wireVersionForCommitQuorum = 9;
-
-    /** @var string */
     private $databaseName;
-
-    /** @var string */
     private $collectionName;
-
-    /** @var array */
     private $indexes = [];
-
-    /** @var boolean */
     private $isCollationUsed = false;
-
-    /** @var array */
     private $options = [];
 
     /**
      * Constructs a createIndexes command.
      *
      * Supported options:
-     *
-     *  * commitQuorum (integer|string): Specifies how many data-bearing members
-     *    of a replica set, including the primary, must complete the index
-     *    builds successfully before the primary marks the indexes as ready.
-     *
-     *  * maxTimeMS (integer): The maximum amount of time to allow the query to
-     *    run.
-     *
-     *  * session (MongoDB\Driver\Session): Client session.
-     *
-     *    Sessions are not supported for server versions < 3.6.
      *
      *  * writeConcern (MongoDB\Driver\WriteConcern): Write concern.
      *
@@ -106,8 +75,12 @@ class CreateIndexes implements Executable
                 throw new InvalidArgumentException(sprintf('$indexes is not a list (unexpected index: "%s")', $i));
             }
 
-            if (! is_array($index)) {
+            if ( ! is_array($index)) {
                 throw InvalidArgumentException::invalidType(sprintf('$index[%d]', $i), $index, 'array');
+            }
+
+            if ( ! isset($index['ns'])) {
+                $index['ns'] = $databaseName . '.' . $collectionName;
             }
 
             if (isset($index['collation'])) {
@@ -119,24 +92,8 @@ class CreateIndexes implements Executable
             $expectedIndex += 1;
         }
 
-        if (isset($options['commitQuorum']) && ! is_string($options['commitQuorum']) && ! is_integer($options['commitQuorum'])) {
-            throw InvalidArgumentException::invalidType('"commitQuorum" option', $options['commitQuorum'], ['integer', 'string']);
-        }
-
-        if (isset($options['maxTimeMS']) && ! is_integer($options['maxTimeMS'])) {
-            throw InvalidArgumentException::invalidType('"maxTimeMS" option', $options['maxTimeMS'], 'integer');
-        }
-
-        if (isset($options['session']) && ! $options['session'] instanceof Session) {
-            throw InvalidArgumentException::invalidType('"session" option', $options['session'], Session::class);
-        }
-
         if (isset($options['writeConcern']) && ! $options['writeConcern'] instanceof WriteConcern) {
-            throw InvalidArgumentException::invalidType('"writeConcern" option', $options['writeConcern'], WriteConcern::class);
-        }
-
-        if (isset($options['writeConcern']) && $options['writeConcern']->isDefault()) {
-            unset($options['writeConcern']);
+            throw InvalidArgumentException::invalidType('"writeConcern" option', $options['writeConcern'], 'MongoDB\Driver\WriteConcern');
         }
 
         $this->databaseName = (string) $databaseName;
@@ -147,6 +104,9 @@ class CreateIndexes implements Executable
     /**
      * Execute the operation.
      *
+     * For servers < 2.6, this will actually perform an insert operation on the
+     * database's "system.indexes" collection.
+     *
      * @see Executable::execute()
      * @param Server $server
      * @return string[] The names of the created indexes
@@ -155,45 +115,21 @@ class CreateIndexes implements Executable
      */
     public function execute(Server $server)
     {
-        if ($this->isCollationUsed && ! server_supports_feature($server, self::$wireVersionForCollation)) {
+        if ($this->isCollationUsed && ! \MongoDB\server_supports_feature($server, self::$wireVersionForCollation)) {
             throw UnsupportedException::collationNotSupported();
         }
 
-        if (isset($this->options['writeConcern']) && ! server_supports_feature($server, self::$wireVersionForWriteConcern)) {
+        if (isset($this->options['writeConcern']) && ! \MongoDB\server_supports_feature($server, self::$wireVersionForWriteConcern)) {
             throw UnsupportedException::writeConcernNotSupported();
         }
 
-        $inTransaction = isset($this->options['session']) && $this->options['session']->isInTransaction();
-        if ($inTransaction && isset($this->options['writeConcern'])) {
-            throw UnsupportedException::writeConcernNotSupportedInTransaction();
+        if (\MongoDB\server_supports_feature($server, self::$wireVersionForCommand)) {
+            $this->executeCommand($server);
+        } else {
+            $this->executeLegacy($server);
         }
 
-        $this->executeCommand($server);
-
-        return array_map(function (IndexInput $index) {
-            return (string) $index;
-        }, $this->indexes);
-    }
-
-    /**
-     * Create options for executing the command.
-     *
-     * @see http://php.net/manual/en/mongodb-driver-server.executewritecommand.php
-     * @return array
-     */
-    private function createOptions()
-    {
-        $options = [];
-
-        if (isset($this->options['session'])) {
-            $options['session'] = $this->options['session'];
-        }
-
-        if (isset($this->options['writeConcern'])) {
-            $options['writeConcern'] = $this->options['writeConcern'];
-        }
-
-        return $options;
+        return array_map(function(IndexInput $index) { return (string) $index; }, $this->indexes);
     }
 
     /**
@@ -210,20 +146,28 @@ class CreateIndexes implements Executable
             'indexes' => $this->indexes,
         ];
 
-        if (isset($this->options['commitQuorum'])) {
-            /* Drivers MUST manually raise an error if this option is specified
-             * when creating an index on a pre 4.4 server. */
-            if (! server_supports_feature($server, self::$wireVersionForCommitQuorum)) {
-                throw UnsupportedException::commitQuorumNotSupported();
-            }
-
-            $cmd['commitQuorum'] = $this->options['commitQuorum'];
+        if (isset($this->options['writeConcern'])) {
+            $cmd['writeConcern'] = \MongoDB\write_concern_as_document($this->options['writeConcern']);
         }
 
-        if (isset($this->options['maxTimeMS'])) {
-            $cmd['maxTimeMS'] = $this->options['maxTimeMS'];
+        $server->executeCommand($this->databaseName, new Command($cmd));
+    }
+
+    /**
+     * Create one or more indexes for the collection by inserting into the
+     * "system.indexes" collection (MongoDB <2.6).
+     *
+     * @param Server $server
+     * @throws DriverRuntimeException for other driver errors (e.g. connection errors)
+     */
+    private function executeLegacy(Server $server)
+    {
+        $bulk = new Bulk(['ordered' => true]);
+
+        foreach ($this->indexes as $index) {
+            $bulk->insert($index);
         }
 
-        $server->executeWriteCommand($this->databaseName, new Command($cmd), $this->createOptions());
+        $server->executeBulkWrite($this->databaseName . '.system.indexes', $bulk, new WriteConcern(1));
     }
 }

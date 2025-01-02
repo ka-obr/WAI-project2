@@ -17,19 +17,12 @@
 
 namespace MongoDB\Operation;
 
-use MongoDB\Driver\BulkWrite as Bulk;
-use MongoDB\Driver\Exception\RuntimeException as DriverRuntimeException;
-use MongoDB\Driver\Server;
-use MongoDB\Driver\Session;
-use MongoDB\Driver\WriteConcern;
-use MongoDB\Exception\InvalidArgumentException;
-use MongoDB\Exception\UnsupportedException;
 use MongoDB\InsertManyResult;
-use function is_array;
-use function is_bool;
-use function is_object;
-use function MongoDB\server_supports_feature;
-use function sprintf;
+use MongoDB\Driver\BulkWrite as Bulk;
+use MongoDB\Driver\Server;
+use MongoDB\Driver\WriteConcern;
+use MongoDB\Driver\Exception\RuntimeException as DriverRuntimeException;
+use MongoDB\Exception\InvalidArgumentException;
 
 /**
  * Operation for inserting multiple documents with the insert command.
@@ -40,19 +33,11 @@ use function sprintf;
  */
 class InsertMany implements Executable
 {
-    /** @var integer */
     private static $wireVersionForDocumentLevelValidation = 4;
 
-    /** @var string */
     private $databaseName;
-
-    /** @var string */
     private $collectionName;
-
-    /** @var object[]|array[] */
     private $documents;
-
-    /** @var array */
     private $options;
 
     /**
@@ -60,19 +45,12 @@ class InsertMany implements Executable
      *
      * Supported options:
      *
-     *  * bypassDocumentValidation (boolean): If true, allows the write to
-     *    circumvent document level validation.
-     *
-     *    For servers < 3.2, this option is ignored as document level validation
-     *    is not available.
+     *  * bypassDocumentValidation (boolean): If true, allows the write to opt
+     *    out of document level validation.
      *
      *  * ordered (boolean): If true, when an insert fails, return without
      *    performing the remaining writes. If false, when a write fails,
      *    continue with the remaining writes, if any. The default is true.
-     *
-     *  * session (MongoDB\Driver\Session): Client session.
-     *
-     *    Sessions are not supported for server versions < 3.6.
      *
      *  * writeConcern (MongoDB\Driver\WriteConcern): Write concern.
      *
@@ -95,7 +73,7 @@ class InsertMany implements Executable
                 throw new InvalidArgumentException(sprintf('$documents is not a list (unexpected index: "%s")', $i));
             }
 
-            if (! is_array($document) && ! is_object($document)) {
+            if ( ! is_array($document) && ! is_object($document)) {
                 throw InvalidArgumentException::invalidType(sprintf('$documents[%d]', $i), $document, 'array or object');
             }
 
@@ -108,20 +86,12 @@ class InsertMany implements Executable
             throw InvalidArgumentException::invalidType('"bypassDocumentValidation" option', $options['bypassDocumentValidation'], 'boolean');
         }
 
-        if (! is_bool($options['ordered'])) {
+        if ( ! is_bool($options['ordered'])) {
             throw InvalidArgumentException::invalidType('"ordered" option', $options['ordered'], 'boolean');
         }
 
-        if (isset($options['session']) && ! $options['session'] instanceof Session) {
-            throw InvalidArgumentException::invalidType('"session" option', $options['session'], Session::class);
-        }
-
         if (isset($options['writeConcern']) && ! $options['writeConcern'] instanceof WriteConcern) {
-            throw InvalidArgumentException::invalidType('"writeConcern" option', $options['writeConcern'], WriteConcern::class);
-        }
-
-        if (isset($options['writeConcern']) && $options['writeConcern']->isDefault()) {
-            unset($options['writeConcern']);
+            throw InvalidArgumentException::invalidType('"writeConcern" option', $options['writeConcern'], 'MongoDB\Driver\WriteConcern');
         }
 
         $this->databaseName = (string) $databaseName;
@@ -140,16 +110,9 @@ class InsertMany implements Executable
      */
     public function execute(Server $server)
     {
-        $inTransaction = isset($this->options['session']) && $this->options['session']->isInTransaction();
-        if ($inTransaction && isset($this->options['writeConcern'])) {
-            throw UnsupportedException::writeConcernNotSupportedInTransaction();
-        }
-
         $options = ['ordered' => $this->options['ordered']];
 
-        if (! empty($this->options['bypassDocumentValidation']) &&
-            server_supports_feature($server, self::$wireVersionForDocumentLevelValidation)
-        ) {
+        if (isset($this->options['bypassDocumentValidation']) && \MongoDB\server_supports_feature($server, self::$wireVersionForDocumentLevelValidation)) {
             $options['bypassDocumentValidation'] = $this->options['bypassDocumentValidation'];
         }
 
@@ -157,32 +120,18 @@ class InsertMany implements Executable
         $insertedIds = [];
 
         foreach ($this->documents as $i => $document) {
-            $insertedIds[$i] = $bulk->insert($document);
+            $insertedId = $bulk->insert($document);
+
+            if ($insertedId !== null) {
+                $insertedIds[$i] = $insertedId;
+            } else {
+                $insertedIds[$i] = \MongoDB\extract_id_from_inserted_document($document);
+            }
         }
 
-        $writeResult = $server->executeBulkWrite($this->databaseName . '.' . $this->collectionName, $bulk, $this->createOptions());
+        $writeConcern = isset($this->options['writeConcern']) ? $this->options['writeConcern'] : null;
+        $writeResult = $server->executeBulkWrite($this->databaseName . '.' . $this->collectionName, $bulk, $writeConcern);
 
         return new InsertManyResult($writeResult, $insertedIds);
-    }
-
-    /**
-     * Create options for executing the bulk write.
-     *
-     * @see http://php.net/manual/en/mongodb-driver-server.executebulkwrite.php
-     * @return array
-     */
-    private function createOptions()
-    {
-        $options = [];
-
-        if (isset($this->options['session'])) {
-            $options['session'] = $this->options['session'];
-        }
-
-        if (isset($this->options['writeConcern'])) {
-            $options['writeConcern'] = $this->options['writeConcern'];
-        }
-
-        return $options;
     }
 }
