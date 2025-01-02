@@ -18,7 +18,9 @@ class MongoDatabase {
                 'password' => $config['mongo']['password'],
             ]
         );
+
         $this->database = $this->client->selectDatabase($config['mongo']['database']);
+
     }
 
     public static function getInstance() {

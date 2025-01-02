@@ -24,7 +24,7 @@ class ImageRepository {
 
     public function countAll() {
         $collection = $this->database->images;
-        return $collection->countDocuments();
+        return $collection->count();
     }
 
     public function save($data) {
