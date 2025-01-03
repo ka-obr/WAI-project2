@@ -8,8 +8,12 @@ class ImageRepository {
     private $database;
 
     public function __construct() {
-        $db = MongoDatabase::getInstance();
-        $this->database = $db->getDatabase();
+        try {
+            $db = MongoDatabase::getInstance();
+            $this->database = $db->getDatabase();
+        } catch (Exception $e) {
+            throw new \RuntimeException('Błąd podczas łączenia z bazą danych: ' . $e->getMessage());
+        }
     }
 
     public function getAll($limit, $offset) {
