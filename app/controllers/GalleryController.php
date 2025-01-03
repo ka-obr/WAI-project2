@@ -53,8 +53,16 @@ class GalleryController {
 
     public function delete() {
         if ($_SERVER['REQUEST_METHOD'] === 'GET' && isset($_GET['fileName'])) {
+            $fileName = $_GET['fileName'];
             $imageModel = new Image();
-            $imageModel->delete($_GET['fileName']);
+            $imageModel->delete($fileName);
+
+            if (isset($_SESSION['remembered'])) {
+                $_SESSION['remembered'] = array_filter($_SESSION['remembered'], function($rememberedFileName) use ($fileName) {
+                    return $rememberedFileName !== $fileName;
+                });
+            }
+
             header('Location: /gallery');
             exit();
         }

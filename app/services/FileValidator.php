@@ -8,11 +8,11 @@ class FileValidator {
 
     public static function validate($fileType, $fileSize) {
         $errors = [];
-        if (!in_array($fileType, self::ALLOWED_TYPES)) {
-            $errors[] = 'Niedozwolony format pliku.';
-        }
         if ($fileSize > self::MAX_SIZE) {
             $errors[] = 'Plik jest za duży.';
+        }
+        if (!in_array($fileType, self::ALLOWED_TYPES)) {
+            $errors[] = 'Niedozwolony format pliku.';
         }
         return $errors;
     }
