@@ -12,11 +12,7 @@ class GalleryController {
     private $galleryService;
 
     public function __construct() {
-        session_start();
         $this->galleryService = new GalleryService();
-        if (!isset($_COOKIE['user_session'])) {
-            setcookie('user_session', session_id(), time() - 3600, "/");
-        }
     }
     
     public function index() {

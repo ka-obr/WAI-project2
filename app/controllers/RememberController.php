@@ -9,7 +9,6 @@ class RememberController {
     private $rememberService;
 
     public function __construct() {
-        session_start();
         $this->rememberService = new RememberService();
     }
 
