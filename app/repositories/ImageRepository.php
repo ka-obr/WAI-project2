@@ -1,48 +1,48 @@
 <?php
 
-namespace App\Repositories; //Deklaracja przesrzeni nazw 'App\Repositories', która pozwala na orgaznizowanie kodu w logiczne grupy i unikanie konfliktów nazw
+namespace App\Repositories;
 
-use App\Core\MongoDatabase; //Importowanie klasy 'MongoDatabase' z przestrzeni nazw 'App\Core'
+use App\Core\MongoDatabase;
 
-class ImageRepository { //Definicja klasy 'ImageRespository', która będzie obsługiwać operacje na obrazach w bazie danych
-    private $database; //Deklaracja prywatnej zmiennej $database przechowującej połączenie z bazą danych
+class ImageRepository {
+    private $database;
 
     public function __construct() {
         try {
-            $db = MongoDatabase::getInstance(); //Pobranie instancji klasy 'MongoDatabase' za pomocą metody 'getInstance'
-            $this->database = $db->getDatabase(); //Przypisanie połączenia do bazy danych do zmiennej $database
-        } catch (Exception $e) { //Obsługa wyjątków
-            throw new \RuntimeException('Błąd podczas łączenia z bazą danych: ' . $e->getMessage()); //Rzucenie wyjątku w przypadku błędu połączenia z bazą danych
+            $db = MongoDatabase::getInstance();
+            $this->database = $db->getDatabase();
+        } catch (Exception $e) {
+            throw new \RuntimeException('Błąd podczas łączenia z bazą danych: ' . $e->getMessage());
         }
     }
 
-    public function getAll($limit, $offset) { //Metoda getAll, która pobiera wszystkie obrazy z limitem i przesunięciem
-        $collection = $this->database->images; //Pobranie kolekcji 'images' z bazy danych
-        $options = [ //Ustawienie opcji zapytania
-            'limit' => $limit, //limit wyników
-            'skip' => $offset, //przesunięcie wyników
+    public function getAll($limit, $offset) {
+        $collection = $this->database->images;
+        $options = [
+            'limit' => $limit,
+            'skip' => $offset,
         ];
-        $cursor = $collection->find([], $options); //Wykonanie zapytania do kolekcji 'images' z ustawionymi opcjami
-        return $cursor->toArray(); //Zwrócenie wyników zapytania w postaci tablicy
+        $cursor = $collection->find([], $options);
+        return $cursor->toArray();
     }
 
-    public function countAll() { //Metoda countAll, która zwraca liczbę wszystkich obrazów
-        $collection = $this->database->images; //Pobranie kolekcji 'images' z bazy danych
-        return $collection->count(); //Zwrócenie liczby dokumentów w kolekcji 'images'
+    public function countAll() {
+        $collection = $this->database->images;
+        return $collection->count();
     }
 
-    public function save($data) { //Metoda save, która zapisuje obraz w bazie danych
-        $collection = $this->database->images; //Pobranie kolekcji 'images' z bazy danych
-        $collection->insertOne($data); //Wstawienie nowego dokumentu do kolekcji 'images'
+    public function save($data) {
+        $collection = $this->database->images;
+        $collection->insertOne($data);
     }
 
-    public function delete($fileName) { //Metoda delete, która usuwa obraz z bazy danych
-        $collection = $this->database->images; //Pobranie kolekcji 'images' z bazy danych
-        $collection->deleteOne(['fileName' => $fileName]); //Usunięcie dokumentu z kolekcji 'images' na podstawie nazwy pliku
+    public function delete($fileName) {
+        $collection = $this->database->images;
+        $collection->deleteOne(['fileName' => $fileName]);
     }
 
-    public function getByFileName($fileName) { //Metoda getByFileName, która pobiera obraz z bazy danych na podstawie nazwy pliku
-        $collection = $this->database->images; //Pobranie kolekcji 'images' z bazy danych
-        return $collection->findOne(['fileName' => $fileName]); //Znalezienie i zwrócenie dokumentu z kolekcji 'images' na podstawie nazwy pliku
+    public function getByFileName($fileName) {
+        $collection = $this->database->images;
+        return $collection->findOne(['fileName' => $fileName]);
     }
 }

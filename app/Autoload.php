@@ -1,10 +1,5 @@
 <?php
 
-// Ten plik ładuje wszystkie niezbędne pliki PHP wymagane do działania aplikacji.
-// Używa funkcji require_once, aby upewnić się, że każdy plik jest załadowany tylko raz.
-// Ładuje kontrolery, modele, usługi, repozytoria i inne kluczowe komponenty aplikacji.
-// Dzięki temu plikowi, wszystkie klasy i funkcje są dostępne w całej aplikacji, co umożliwia ich użycie bez konieczności wielokrotnego ładowania tych samych plików.
-
 require_once __DIR__ . '/controllers/GalleryController.php';
 require_once __DIR__ . '/controllers/ErrorController.php';
 require_once __DIR__ . '/controllers/RememberController.php';
